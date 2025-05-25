@@ -359,3 +359,285 @@ ALTER TABLE GRANIZADO.ENVIO
   ADD CONSTRAINT FK_ENVIO_FACT FOREIGN KEY (fact_id)
   REFERENCES GRANIZADO.FACTURA(fact_id);
 GO
+
+
+
+-- Stored Procedure: MIGRAR_PROVINCIA
+CREATE PROCEDURE GRANIZADO.MIGRAR_PROVINCIA
+AS
+BEGIN
+    INSERT INTO GRANIZADO.PROVINCIA(prov_nombre)
+    SELECT DISTINCT Sucursal_Provincia
+    FROM gd_esquema.Maestra
+    WHERE Sucursal_Provincia IS NOT NULL
+END
+GO
+
+-- Stored Procedure: MIGRAR_LOCALIDAD
+CREATE PROCEDURE GRANIZADO.MIGRAR_LOCALIDAD
+AS
+BEGIN
+    INSERT INTO GRANIZADO.LOCALIDAD(provincia_id, localidad_nombre)
+    SELECT DISTINCT p.provincia_id, m.Sucursal_Localidad
+    FROM gd_esquema.Maestra m
+    JOIN GRANIZADO.PROVINCIA p ON p.prov_nombre = m.Sucursal_Provincia
+    WHERE m.Sucursal_Localidad IS NOT NULL
+END
+GO
+
+-- Stored Procedure: MIGRAR_DIRECCION
+CREATE PROCEDURE GRANIZADO.MIGRAR_DIRECCION
+AS
+BEGIN
+    INSERT INTO GRANIZADO.DIRECCION(localidad_id, direccion_calle, dir_num_calle)
+    SELECT DISTINCT l.localidad_id, m.Sucursal_Direccion, 'SN'
+    FROM gd_esquema.Maestra m
+    JOIN GRANIZADO.PROVINCIA p ON p.prov_nombre = m.Sucursal_Provincia
+    JOIN GRANIZADO.LOCALIDAD l ON l.localidad_nombre = m.Sucursal_Localidad AND l.provincia_id = p.provincia_id
+    WHERE m.Sucursal_Direccion IS NOT NULL
+END
+GO
+
+-- Stored Procedure: MIGRAR_SUCURSAL
+CREATE PROCEDURE GRANIZADO.MIGRAR_SUCURSAL
+AS
+BEGIN
+    INSERT INTO GRANIZADO.SUCURSAL(direccion_id, Sucursal_NroSucursal, Sucursal_telefono, Sucursal_mail)
+    SELECT DISTINCT d.direccion_id, m.Sucursal_NroSucursal, m.Sucursal_telefono, m.Sucursal_mail
+    FROM gd_esquema.Maestra m
+    JOIN GRANIZADO.PROVINCIA p ON p.prov_nombre = m.Sucursal_Provincia
+    JOIN GRANIZADO.LOCALIDAD l ON l.localidad_nombre = m.Sucursal_Localidad AND l.provincia_id = p.provincia_id
+    JOIN GRANIZADO.DIRECCION d ON d.direccion_calle = m.Sucursal_Direccion AND d.localidad_id = l.localidad_id
+    WHERE m.Sucursal_NroSucursal IS NOT NULL
+END
+GO
+
+-- Stored Procedure: MIGRAR_PROVEEDOR
+CREATE PROCEDURE GRANIZADO.MIGRAR_PROVEEDOR
+AS
+BEGIN
+    INSERT INTO GRANIZADO.PROVEEDOR(direccion_id, Proveedor_RazonSocial, Proveedor_Telefono, Proveedor_Mail)
+    SELECT DISTINCT d.direccion_id, m.Proveedor_RazonSocial, m.Proveedor_Telefono, m.Proveedor_Mail
+    FROM gd_esquema.Maestra m
+    JOIN GRANIZADO.PROVINCIA p ON p.prov_nombre = m.Proveedor_Provincia
+    JOIN GRANIZADO.LOCALIDAD l ON l.localidad_nombre = m.Proveedor_Localidad AND l.provincia_id = p.provincia_id
+    JOIN GRANIZADO.DIRECCION d ON d.direccion_calle = m.Proveedor_Direccion AND d.localidad_id = l.localidad_id
+    WHERE m.Proveedor_RazonSocial IS NOT NULL
+END
+GO
+
+-- Stored Procedure: MIGRAR_CLIENTE
+CREATE PROCEDURE GRANIZADO.MIGRAR_CLIENTE
+AS
+BEGIN
+    INSERT INTO GRANIZADO.CLIENTE(Cliente_nombre, Cliente_Apellido, Cliente_FechaNacimiento, direccion_id, Cliente_Telefono, Cliente_Mail)
+    SELECT DISTINCT m.Cliente_Nombre, m.Cliente_Apellido, m.Cliente_FechaNacimiento, d.direccion_id, m.Cliente_Telefono, m.Cliente_Mail
+    FROM gd_esquema.Maestra m
+    JOIN GRANIZADO.PROVINCIA p ON p.prov_nombre = m.Cliente_Provincia
+    JOIN GRANIZADO.LOCALIDAD l ON l.localidad_nombre = m.Cliente_Localidad AND l.provincia_id = p.provincia_id
+    JOIN GRANIZADO.DIRECCION d ON d.direccion_calle = m.Cliente_Direccion AND d.localidad_id = l.localidad_id
+    WHERE m.Cliente_Dni IS NOT NULL
+END
+GO
+
+-- Stored Procedure: MIGRAR_MATERIAL
+CREATE PROCEDURE GRANIZADO.MIGRAR_MATERIAL
+AS
+BEGIN
+    INSERT INTO GRANIZADO.MATERIAL(Material_Tipo, Material_Nombre, Material_Descripcion, Material_Precio)
+    SELECT DISTINCT m.Material_Tipo, m.Material_Nombre, m.Material_Descripcion, m.Material_Precio
+    FROM gd_esquema.Maestra m
+    WHERE m.Material_Nombre IS NOT NULL
+END
+GO
+
+-- Stored Procedure: MIGRAR_MADERA
+CREATE PROCEDURE GRANIZADO.MIGRAR_MADERA
+AS
+BEGIN
+    INSERT INTO GRANIZADO.MADERA(Madera_Color, Madera_Dureza)
+    SELECT DISTINCT Madera_Color, Madera_Dureza
+    FROM gd_esquema.Maestra
+    WHERE Madera_Color IS NOT NULL
+END
+GO
+
+-- Stored Procedure: MIGRAR_TELA
+CREATE PROCEDURE GRANIZADO.MIGRAR_TELA
+AS
+BEGIN
+    INSERT INTO GRANIZADO.TELA(Tela_Color, Tela_Textura)
+    SELECT DISTINCT Tela_Color, Tela_Textura
+    FROM gd_esquema.Maestra
+    WHERE Tela_Color IS NOT NULL
+END
+GO
+
+-- Stored Procedure: MIGRAR_RELLENO
+CREATE PROCEDURE GRANIZADO.MIGRAR_RELLENO
+AS
+BEGIN
+    INSERT INTO GRANIZADO.RELLENO(Relleno_Densidad)
+    SELECT DISTINCT Relleno_Densidad
+    FROM gd_esquema.Maestra
+    WHERE Relleno_Densidad IS NOT NULL
+END
+GO
+
+-- Stored Procedure: MIGRAR_MEDIDA
+CREATE PROCEDURE GRANIZADO.MIGRAR_MEDIDA
+AS
+BEGIN
+    INSERT INTO GRANIZADO.MEDIDA(precio, Sillon_Medida_Alto, Sillon_Medida_Ancho, Sillon_Medida_Profundidad)
+    SELECT DISTINCT Sillon_Medida_Precio, Sillon_Medida_Alto, Sillon_Medida_Ancho, Sillon_Medida_Profundidad
+    FROM gd_esquema.Maestra
+    WHERE Sillon_Medida_Alto IS NOT NULL
+END
+GO
+
+-- Stored Procedure: MIGRAR_MODELO
+CREATE PROCEDURE GRANIZADO.MIGRAR_MODELO
+AS
+BEGIN
+    INSERT INTO GRANIZADO.MODELO(nombre_modelo, precio_modelo)
+    SELECT DISTINCT Sillon_Modelo, Sillon_Modelo_Precio
+    FROM gd_esquema.Maestra
+    WHERE Sillon_Modelo IS NOT NULL
+END
+GO
+
+-- Stored Procedure: MIGRAR_SILLON
+CREATE PROCEDURE GRANIZADO.MIGRAR_SILLON
+AS
+BEGIN
+    INSERT INTO GRANIZADO.SILLON(Sillon_Codigo, Sillon_Modelo_Codigo, med_id, mat_id, Sillon_Modelo_Descripcion)
+    SELECT DISTINCT m.Sillon_Codigo, mo.mod_id, me.med_id, ma.mat_id, m.Sillon_Modelo_Descripcion
+    FROM gd_esquema.Maestra m
+    JOIN GRANIZADO.MODELO mo ON mo.nombre_modelo = m.Sillon_Modelo
+    JOIN GRANIZADO.MEDIDA me ON me.Sillon_Medida_Alto = m.Sillon_Medida_Alto AND me.Sillon_Medida_Ancho = m.Sillon_Medida_Ancho AND me.Sillon_Medida_Profundidad = m.Sillon_Medida_Profundidad
+    JOIN GRANIZADO.MATERIAL ma ON ma.Material_Nombre = m.Material_Nombre AND ma.Material_Tipo = m.Material_Tipo
+    WHERE m.Sillon_Codigo IS NOT NULL
+END
+GO
+
+-- Stored Procedure: MIGRAR_PEDIDO
+CREATE PROCEDURE GRANIZADO.MIGRAR_PEDIDO
+AS
+BEGIN
+    INSERT INTO GRANIZADO.PEDIDO(Pedido_Numero, Pedido_Fecha, suc_id, cli_id, Pedido_Total, Pedido_Estado, Pedido_Cancelacion_Fecha, Pedido_Cancelacion_Motivo)
+    SELECT DISTINCT Pedido_Numero, Pedido_Fecha, s.suc_id, c.cli_id, Pedido_Total, Pedido_Estado, Pedido_Cancelacion_Fecha, Pedido_Cancelacion_Motivo
+    FROM gd_esquema.Maestra m
+    JOIN GRANIZADO.SUCURSAL s ON s.Sucursal_NroSucursal = m.Sucursal_NroSucursal
+    JOIN GRANIZADO.CLIENTE c ON c.Cliente_Mail = m.Cliente_Mail AND c.Cliente_nombre = m.Cliente_Nombre AND c.Cliente_Apellido = m.Cliente_Apellido
+    WHERE Pedido_Numero IS NOT NULL
+END
+GO
+
+-- Stored Procedure: MIGRAR_PEDIDO_CANCELADO
+CREATE PROCEDURE GRANIZADO.MIGRAR_PEDIDO_CANCELADO
+AS
+BEGIN
+    INSERT INTO GRANIZADO.PEDIDO_CANCELADO(Pedido_Numero, Pedido_Cancelacion_Fecha, Pedido_Cancelacion_Motivo)
+    SELECT DISTINCT Pedido_Numero, Pedido_Cancelacion_Fecha, Pedido_Cancelacion_Motivo
+    FROM gd_esquema.Maestra
+    WHERE Pedido_Cancelacion_Fecha IS NOT NULL
+END
+GO
+
+-- Stored Procedure: MIGRAR_DETALLE_PEDIDO
+CREATE PROCEDURE GRANIZADO.MIGRAR_DETALLE_PEDIDO
+AS
+BEGIN
+    INSERT INTO GRANIZADO.DETALLE_PEDIDO(Pedido_Numero, Sillon_Codigo, Detalle_Pedido_Cantidad, Detalle_Pedido_Precio, Detalle_Pedido_SubTotal)
+    SELECT DISTINCT Pedido_Numero, Sillon_Codigo, Detalle_Pedido_Cantidad, Detalle_Pedido_Precio, Detalle_Pedido_SubTotal
+    FROM gd_esquema.Maestra
+    WHERE Sillon_Codigo IS NOT NULL
+END
+GO
+
+-- Stored Procedure: MIGRAR_FACTURA
+CREATE PROCEDURE GRANIZADO.MIGRAR_FACTURA
+AS
+BEGIN
+    INSERT INTO GRANIZADO.FACTURA(cli_id, suc_id, Factura_Numero, Factura_Fecha, Factura_Total)
+    SELECT DISTINCT c.cli_id, s.suc_id, Factura_Numero, Factura_Fecha, Factura_Total
+    FROM gd_esquema.Maestra m
+    JOIN GRANIZADO.CLIENTE c ON c.Cliente_Mail = m.Cliente_Mail AND c.Cliente_nombre = m.Cliente_Nombre AND c.Cliente_Apellido = m.Cliente_Apellido
+    JOIN GRANIZADO.SUCURSAL s ON s.Sucursal_NroSucursal = m.Sucursal_NroSucursal
+    WHERE Factura_Numero IS NOT NULL
+END
+GO
+
+-- Stored Procedure: MIGRAR_DETALLE_FACTURA
+CREATE PROCEDURE GRANIZADO.MIGRAR_DETALLE_FACTURA
+AS
+BEGIN
+    INSERT INTO GRANIZADO.DETALLE_FACTURA(det_pedido_id, fact_id, Detalle_Factura_Precio, Detalle_Factura_Cantidad, Detalle_Factura_SubTotal)
+    SELECT TOP dp.det_pedido_id, f.fact_id, m.Detalle_Factura_Precio, m.Detalle_Factura_Cantidad, m.Detalle_Factura_SubTotal
+    FROM gd_esquema.Maestra m
+    JOIN GRANIZADO.FACTURA f ON f.Factura_Numero = m.Factura_Numero
+    JOIN GRANIZADO.DETALLE_PEDIDO dp ON dp.Pedido_Numero = m.Pedido_Numero AND dp.Detalle_Pedido_SubTotal = m.Detalle_Pedido_SubTotal
+    WHERE m.Factura_Numero IS NOT NULL
+END
+GO
+
+-- Stored Procedure: MIGRAR_ENVIO
+CREATE PROCEDURE GRANIZADO.MIGRAR_ENVIO
+AS
+BEGIN
+    INSERT INTO GRANIZADO.ENVIO(Envio_Numero, fact_id, Envio_Fecha_Programada, Envio_Fecha, Envio_ImporteTraslado, Envio_ImporteSubida, Envio_Total)
+    SELECT DISTINCT Envio_Numero, f.fact_id, Envio_Fecha_Programada, Envio_Fecha, Envio_ImporteTraslado, Envio_importeSubida, Envio_Total
+    FROM gd_esquema.Maestra m
+    JOIN GRANIZADO.FACTURA f ON f.Factura_Numero = m.Factura_Numero
+    WHERE Envio_Numero IS NOT NULL
+END
+GO
+
+-- Stored Procedure: MIGRAR_COMPRA
+CREATE PROCEDURE GRANIZADO.MIGRAR_COMPRA
+AS
+BEGIN
+    INSERT INTO GRANIZADO.COMPRA(compra_id, suc_id, prov_id, Compra_Fecha, Compra_Total)
+    SELECT DISTINCT Compra_Numero, s.suc_id, p.prov_id, Compra_Fecha, Compra_Total
+    FROM gd_esquema.Maestra m
+    JOIN GRANIZADO.SUCURSAL s ON s.Sucursal_NroSucursal = m.Sucursal_NroSucursal
+    JOIN GRANIZADO.PROVEEDOR p ON p.Proveedor_RazonSocial = m.Proveedor_RazonSocial
+    WHERE Compra_Numero IS NOT NULL
+END
+GO
+
+-- Stored Procedure: MIGRAR_DETALLE_COMPRA
+CREATE PROCEDURE GRANIZADO.MIGRAR_DETALLE_COMPRA
+AS
+BEGIN
+    INSERT INTO GRANIZADO.DETALLE_COMPRA(compra_id, mat_id, Detalle_Compra_Precio, Detalle_Compra_Cantidad, Detalle_Compra_SubTotal)
+    SELECT DISTINCT Compra_Numero, m2.mat_id, Detalle_Compra_Precio, Detalle_Compra_Cantidad, Detalle_Compra_SubTotal
+    FROM gd_esquema.Maestra m
+    JOIN GRANIZADO.MATERIAL m2 ON m2.Material_Nombre = m.Material_Nombre AND m2.Material_Tipo = m.Material_Tipo
+    WHERE Compra_Numero IS NOT NULL
+END
+GO
+
+
+EXEC GRANIZADO.MIGRAR_PROVINCIA
+EXEC GRANIZADO.MIGRAR_LOCALIDAD
+EXEC GRANIZADO.MIGRAR_DIRECCION
+EXEC GRANIZADO.MIGRAR_SUCURSAL
+EXEC GRANIZADO.MIGRAR_PROVEEDOR
+EXEC GRANIZADO.MIGRAR_CLIENTE
+EXEC GRANIZADO.MIGRAR_MATERIAL
+EXEC GRANIZADO.MIGRAR_MADERA
+EXEC GRANIZADO.MIGRAR_TELA
+EXEC GRANIZADO.MIGRAR_RELLENO
+EXEC GRANIZADO.MIGRAR_MEDIDA
+EXEC GRANIZADO.MIGRAR_MODELO
+EXEC GRANIZADO.MIGRAR_SILLON
+EXEC GRANIZADO.MIGRAR_PEDIDO
+EXEC GRANIZADO.MIGRAR_PEDIDO_CANCELADO
+EXEC GRANIZADO.MIGRAR_DETALLE_PEDIDO
+EXEC GRANIZADO.MIGRAR_FACTURA
+EXEC GRANIZADO.MIGRAR_DETALLE_FACTURA
+EXEC GRANIZADO.MIGRAR_ENVIO
+EXEC GRANIZADO.MIGRAR_COMPRA
+EXEC GRANIZADO.MIGRAR_DETALLE_COMPRA
+GO
