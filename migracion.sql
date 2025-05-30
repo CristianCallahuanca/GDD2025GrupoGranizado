@@ -384,25 +384,56 @@ CREATE PROCEDURE GRANIZADO.MIGRAR_LOCALIDAD
 AS
 BEGIN
     INSERT INTO GRANIZADO.LOCALIDAD(provincia_id, localidad_nombre)
-    SELECT DISTINCT p.provincia_id, m.Sucursal_Localidad
-    FROM gd_esquema.Maestra m
-    JOIN GRANIZADO.PROVINCIA p ON p.prov_nombre = m.Sucursal_Provincia
-    WHERE m.Sucursal_Localidad IS NOT NULL
+    SELECT DISTINCT p.provincia_id, l.localidad
+    FROM (
+        SELECT Cliente_Provincia AS Provincia, Cliente_Localidad AS Localidad
+        FROM gd_esquema.Maestra
+        WHERE Cliente_Provincia IS NOT NULL AND Cliente_Localidad IS NOT NULL
+
+        UNION
+
+        SELECT Sucursal_Provincia, Sucursal_Localidad
+        FROM gd_esquema.Maestra
+        WHERE Sucursal_Provincia IS NOT NULL AND Sucursal_Localidad IS NOT NULL
+
+        UNION
+
+        SELECT Proveedor_Provincia, Proveedor_Localidad
+        FROM gd_esquema.Maestra
+        WHERE Proveedor_Provincia IS NOT NULL AND Proveedor_Localidad IS NOT NULL
+    ) l
+    JOIN GRANIZADO.PROVINCIA p ON p.prov_nombre = l.Provincia
 END
 GO
+
 
 -- Stored Procedure: MIGRAR_DIRECCION
 CREATE PROCEDURE GRANIZADO.MIGRAR_DIRECCION
 AS
 BEGIN
     INSERT INTO GRANIZADO.DIRECCION(localidad_id, direccion_calle, dir_num_calle)
-    SELECT DISTINCT l.localidad_id, m.Sucursal_Direccion, 'SN'
-    FROM gd_esquema.Maestra m
-    JOIN GRANIZADO.PROVINCIA p ON p.prov_nombre = m.Sucursal_Provincia
-    JOIN GRANIZADO.LOCALIDAD l ON l.localidad_nombre = m.Sucursal_Localidad AND l.provincia_id = p.provincia_id
-    WHERE m.Sucursal_Direccion IS NOT NULL
+    SELECT DISTINCT
+        l.localidad_id,
+        LEFT(direccion_txt, CHARINDEX(' N°', direccion_txt) - 1) AS direccion_calle,
+        TRY_CAST(LTRIM(RIGHT(direccion_txt, LEN(direccion_txt) - CHARINDEX('N°', direccion_txt) - 1)) AS INT) AS dir_num_calle
+    FROM (
+        SELECT Cliente_Direccion AS direccion_txt, Cliente_Provincia AS prov, Cliente_Localidad AS loc
+        FROM gd_esquema.Maestra
+        WHERE Cliente_Direccion IS NOT NULL
+        UNION
+        SELECT Sucursal_Direccion, Sucursal_Provincia, Sucursal_Localidad
+        FROM gd_esquema.Maestra
+        WHERE Sucursal_Direccion IS NOT NULL
+        UNION
+        SELECT Proveedor_Direccion, Proveedor_Provincia, Proveedor_Localidad
+        FROM gd_esquema.Maestra
+        WHERE Proveedor_Direccion IS NOT NULL
+    ) AS direcciones
+    INNER JOIN GRANIZADO.PROVINCIA p ON p.prov_nombre = direcciones.prov
+    INNER JOIN GRANIZADO.LOCALIDAD l ON l.localidad_nombre = direcciones.loc AND l.provincia_id = p.provincia_id
 END
 GO
+
 
 -- Stored Procedure: MIGRAR_SUCURSAL
 CREATE PROCEDURE GRANIZADO.MIGRAR_SUCURSAL
