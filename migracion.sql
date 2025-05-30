@@ -367,11 +367,17 @@ CREATE PROCEDURE GRANIZADO.MIGRAR_PROVINCIA
 AS
 BEGIN
     INSERT INTO GRANIZADO.PROVINCIA(prov_nombre)
-    SELECT DISTINCT Sucursal_Provincia
-    FROM gd_esquema.Maestra
-    WHERE Sucursal_Provincia IS NOT NULL
+    SELECT DISTINCT Provincia
+    FROM (
+        SELECT Sucursal_Provincia AS Provincia FROM gd_esquema.Maestra WHERE Sucursal_Provincia IS NOT NULL
+        UNION
+        SELECT Cliente_Provincia FROM gd_esquema.Maestra WHERE Cliente_Provincia IS NOT NULL
+        UNION
+        SELECT Proveedor_Provincia FROM gd_esquema.Maestra WHERE Proveedor_Provincia IS NOT NULL
+    ) AS Provincias
 END
 GO
+
 
 -- Stored Procedure: MIGRAR_LOCALIDAD
 CREATE PROCEDURE GRANIZADO.MIGRAR_LOCALIDAD
