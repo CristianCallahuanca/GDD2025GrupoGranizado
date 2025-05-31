@@ -634,7 +634,7 @@ CREATE PROCEDURE GRANIZADO.MIGRAR_MATERIAL
 AS
 BEGIN
     INSERT INTO GRANIZADO.MATERIAL (tipo_material_id, Material_Nombre, Material_Descripcion, Material_Precio)
-    SELECT
+    SELECT DISTINCT
         tm.tipo_material_id,
         m.Material_Nombre,
         m.Material_Descripcion,
