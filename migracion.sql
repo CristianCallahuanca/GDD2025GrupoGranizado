@@ -1,3 +1,95 @@
+-- Borrado de constraints para luego poder borrar las tablas
+IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_LOCALIDAD_PROVINCIA')
+ALTER TABLE GRANIZADO.LOCALIDAD DROP CONSTRAINT FK_LOCALIDAD_PROVINCIA;
+IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_DIRECCION_LOCALIDAD')
+ALTER TABLE GRANIZADO.DIRECCION DROP CONSTRAINT FK_DIRECCION_LOCALIDAD;
+IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_SUCURSAL_DIRECCION')
+ALTER TABLE GRANIZADO.SUCURSAL DROP CONSTRAINT FK_SUCURSAL_DIRECCION;
+IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_PROVEEDOR_DIRECCION')
+ALTER TABLE GRANIZADO.PROVEEDOR DROP CONSTRAINT FK_PROVEEDOR_DIRECCION;
+IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_COMPRA_SUC')
+ALTER TABLE GRANIZADO.COMPRA DROP CONSTRAINT FK_COMPRA_SUC;
+IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_COMPRA_PROV')
+ALTER TABLE GRANIZADO.COMPRA DROP CONSTRAINT FK_COMPRA_PROV;
+IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_DETCOMPRA_COMPRA')
+ALTER TABLE GRANIZADO.DETALLE_COMPRA DROP CONSTRAINT FK_DETCOMPRA_COMPRA;
+IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_DETCOMPRA_MAT')
+ALTER TABLE GRANIZADO.DETALLE_COMPRA DROP CONSTRAINT FK_DETCOMPRA_MAT;
+IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_MATERIAL_TIPO')
+ALTER TABLE GRANIZADO.MATERIAL DROP CONSTRAINT FK_MATERIAL_TIPO;
+IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_SILLON_MODELO')
+ALTER TABLE GRANIZADO.SILLON DROP CONSTRAINT FK_SILLON_MODELO;
+IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_SILLON_MEDIDA')
+ALTER TABLE GRANIZADO.SILLON DROP CONSTRAINT FK_SILLON_MEDIDA;
+IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_SILLON_MATERIAL')
+ALTER TABLE GRANIZADO.SILLON DROP CONSTRAINT FK_SILLON_MATERIAL;
+IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_CLIENTE_DIRECCION')
+ALTER TABLE GRANIZADO.CLIENTE DROP CONSTRAINT FK_CLIENTE_DIRECCION;
+IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_PEDIDO_CLIENTE')
+ALTER TABLE GRANIZADO.PEDIDO DROP CONSTRAINT FK_PEDIDO_CLIENTE;
+IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_PEDIDO_SUC')
+ALTER TABLE GRANIZADO.PEDIDO DROP CONSTRAINT FK_PEDIDO_SUC;
+IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_PEDCAN_PED')
+ALTER TABLE GRANIZADO.PEDIDO_CANCELADO DROP CONSTRAINT FK_PEDCAN_PED;
+IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_DETPEDIDO_PED')
+ALTER TABLE GRANIZADO.DETALLE_PEDIDO DROP CONSTRAINT FK_DETPEDIDO_PED;
+IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_DETPEDIDO_SILLON')
+ALTER TABLE GRANIZADO.DETALLE_PEDIDO DROP CONSTRAINT FK_DETPEDIDO_SILLON;
+IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_FACTURA_CLI')
+ALTER TABLE GRANIZADO.FACTURA DROP CONSTRAINT FK_FACTURA_CLI;
+IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_FACTURA_SUC')
+ALTER TABLE GRANIZADO.FACTURA DROP CONSTRAINT FK_FACTURA_SUC;
+IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_DETFACT_FACT')
+ALTER TABLE GRANIZADO.DETALLE_FACTURA DROP CONSTRAINT FK_DETFACT_FACT;
+IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_DETFACT_PEDIDO')
+ALTER TABLE GRANIZADO.DETALLE_FACTURA DROP CONSTRAINT FK_DETFACT_PEDIDO;
+IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_ENVIO_FACT')
+ALTER TABLE GRANIZADO.ENVIO DROP CONSTRAINT FK_ENVIO_FACT;
+IF EXISTS (SELECT 1 FROM sys.key_constraints WHERE name = 'PK_PROVINCIA')
+ALTER TABLE GRANIZADO.PROVINCIA DROP CONSTRAINT PK_PROVINCIA;
+IF EXISTS (SELECT 1 FROM sys.key_constraints WHERE name = 'PK_LOCALIDAD')
+ALTER TABLE GRANIZADO.LOCALIDAD DROP CONSTRAINT PK_LOCALIDAD;
+IF EXISTS (SELECT 1 FROM sys.key_constraints WHERE name = 'PK_DIRECCION')
+ALTER TABLE GRANIZADO.DIRECCION DROP CONSTRAINT PK_DIRECCION;
+IF EXISTS (SELECT 1 FROM sys.key_constraints WHERE name = 'PK_SUCURSAL')
+ALTER TABLE GRANIZADO.SUCURSAL DROP CONSTRAINT PK_SUCURSAL;
+IF EXISTS (SELECT 1 FROM sys.key_constraints WHERE name = 'PK_PROVEEDOR')
+ALTER TABLE GRANIZADO.PROVEEDOR DROP CONSTRAINT PK_PROVEEDOR;
+IF EXISTS (SELECT 1 FROM sys.key_constraints WHERE name = 'PK_COMPRA')
+ALTER TABLE GRANIZADO.COMPRA DROP CONSTRAINT PK_COMPRA;
+IF EXISTS (SELECT 1 FROM sys.key_constraints WHERE name = 'PK_DETALLE_COMPRA')
+ALTER TABLE GRANIZADO.DETALLE_COMPRA DROP CONSTRAINT PK_DETALLE_COMPRA;
+IF EXISTS (SELECT 1 FROM sys.key_constraints WHERE name = 'PK_TIPO_MATERIAL')
+ALTER TABLE GRANIZADO.TIPO_MATERIAL DROP CONSTRAINT PK_TIPO_MATERIAL;
+IF EXISTS (SELECT 1 FROM sys.key_constraints WHERE name = 'PK_MATERIAL')
+ALTER TABLE GRANIZADO.MATERIAL DROP CONSTRAINT PK_MATERIAL;
+IF EXISTS (SELECT 1 FROM sys.key_constraints WHERE name = 'PK_MADERA')
+ALTER TABLE GRANIZADO.MADERA DROP CONSTRAINT PK_MADERA;
+IF EXISTS (SELECT 1 FROM sys.key_constraints WHERE name = 'PK_TELA')
+ALTER TABLE GRANIZADO.TELA DROP CONSTRAINT PK_TELA;
+IF EXISTS (SELECT 1 FROM sys.key_constraints WHERE name = 'PK_RELLENO')
+ALTER TABLE GRANIZADO.RELLENO DROP CONSTRAINT PK_RELLENO;
+IF EXISTS (SELECT 1 FROM sys.key_constraints WHERE name = 'PK_MEDIDA')
+ALTER TABLE GRANIZADO.MEDIDA DROP CONSTRAINT PK_MEDIDA;
+IF EXISTS (SELECT 1 FROM sys.key_constraints WHERE name = 'PK_MODELO')
+ALTER TABLE GRANIZADO.MODELO DROP CONSTRAINT PK_MODELO;
+IF EXISTS (SELECT 1 FROM sys.key_constraints WHERE name = 'PK_SILLON')
+ALTER TABLE GRANIZADO.SILLON DROP CONSTRAINT PK_SILLON;
+IF EXISTS (SELECT 1 FROM sys.key_constraints WHERE name = 'PK_CLIENTE')
+ALTER TABLE GRANIZADO.CLIENTE DROP CONSTRAINT PK_CLIENTE;
+IF EXISTS (SELECT 1 FROM sys.key_constraints WHERE name = 'PK_PEDIDO')
+ALTER TABLE GRANIZADO.PEDIDO DROP CONSTRAINT PK_PEDIDO;
+IF EXISTS (SELECT 1 FROM sys.key_constraints WHERE name = 'PK_PEDIDO_CANCELADO')
+ALTER TABLE GRANIZADO.PEDIDO_CANCELADO DROP CONSTRAINT PK_PEDIDO_CANCELADO;
+IF EXISTS (SELECT 1 FROM sys.key_constraints WHERE name = 'PK_DETALLE_PEDIDO')
+ALTER TABLE GRANIZADO.DETALLE_PEDIDO DROP CONSTRAINT PK_DETALLE_PEDIDO;
+IF EXISTS (SELECT 1 FROM sys.key_constraints WHERE name = 'PK_FACTURA')
+ALTER TABLE GRANIZADO.FACTURA DROP CONSTRAINT PK_FACTURA;
+IF EXISTS (SELECT 1 FROM sys.key_constraints WHERE name = 'PK_DETALLE_FACTURA')
+ALTER TABLE GRANIZADO.DETALLE_FACTURA DROP CONSTRAINT PK_DETALLE_FACTURA;
+IF EXISTS (SELECT 1 FROM sys.key_constraints WHERE name = 'PK_ENVIO')
+ALTER TABLE GRANIZADO.ENVIO DROP CONSTRAINT PK_ENVIO;
+
 -- Borrado de tablas si existen
 IF OBJECT_ID('GRANIZADO.DETALLE_FACTURA','U') IS NOT NULL DROP TABLE GRANIZADO.DETALLE_FACTURA;
 IF OBJECT_ID('GRANIZADO.FACTURA','U') IS NOT NULL DROP TABLE GRANIZADO.FACTURA;
@@ -9,6 +101,7 @@ IF OBJECT_ID('GRANIZADO.CLIENTE','U') IS NOT NULL DROP TABLE GRANIZADO.CLIENTE;
 IF OBJECT_ID('GRANIZADO.SILLON','U') IS NOT NULL DROP TABLE GRANIZADO.SILLON;
 IF OBJECT_ID('GRANIZADO.MODELO','U') IS NOT NULL DROP TABLE GRANIZADO.MODELO;
 IF OBJECT_ID('GRANIZADO.MEDIDA','U') IS NOT NULL DROP TABLE GRANIZADO.MEDIDA;
+IF OBJECT_ID('GRANIZADO.TIPO_MATERIAL','U') IS NOT NULL DROP TABLE GRANIZADO.TIPO_MATERIAL;
 IF OBJECT_ID('GRANIZADO.MATERIAL','U') IS NOT NULL DROP TABLE GRANIZADO.MATERIAL;
 IF OBJECT_ID('GRANIZADO.MADERA','U') IS NOT NULL DROP TABLE GRANIZADO.MADERA;
 IF OBJECT_ID('GRANIZADO.RELLENO','U') IS NOT NULL DROP TABLE GRANIZADO.RELLENO;
@@ -21,15 +114,34 @@ IF OBJECT_ID('GRANIZADO.DIRECCION','U') IS NOT NULL DROP TABLE GRANIZADO.DIRECCI
 IF OBJECT_ID('GRANIZADO.LOCALIDAD','U') IS NOT NULL DROP TABLE GRANIZADO.LOCALIDAD;
 IF OBJECT_ID('GRANIZADO.PROVINCIA','U') IS NOT NULL DROP TABLE GRANIZADO.PROVINCIA;
 
--- Borrado de Stored Procedures (se agregará en Sección 4)
-IF OBJECT_ID('GRANIZADO.MIGRAR_PROVINCIA') IS NOT NULL DROP PROCEDURE GRANIZADO.MIGRAR_PROVINCIA;
--- (...se listarán todas después...)
+-- Borrado de Stored Procedures
+IF OBJECT_ID('GRANIZADO.MIGRAR_PROVINCIA', 'P') IS NOT NULL DROP PROCEDURE GRANIZADO.MIGRAR_PROVINCIA;
+IF OBJECT_ID('GRANIZADO.MIGRAR_LOCALIDAD', 'P') IS NOT NULL DROP PROCEDURE GRANIZADO.MIGRAR_LOCALIDAD;
+IF OBJECT_ID('GRANIZADO.MIGRAR_DIRECCION', 'P') IS NOT NULL DROP PROCEDURE GRANIZADO.MIGRAR_DIRECCION;
+IF OBJECT_ID('GRANIZADO.MIGRAR_SUCURSAL', 'P') IS NOT NULL DROP PROCEDURE GRANIZADO.MIGRAR_SUCURSAL;
+IF OBJECT_ID('GRANIZADO.MIGRAR_PROVEEDOR', 'P') IS NOT NULL DROP PROCEDURE GRANIZADO.MIGRAR_PROVEEDOR;
+IF OBJECT_ID('GRANIZADO.MIGRAR_CLIENTE', 'P') IS NOT NULL DROP PROCEDURE GRANIZADO.MIGRAR_CLIENTE;
+IF OBJECT_ID('GRANIZADO.MIGRAR_TIPO_MATERIAL', 'P') IS NOT NULL DROP PROCEDURE GRANIZADO.MIGRAR_TIPO_MATERIAL;
+IF OBJECT_ID('GRANIZADO.MIGRAR_MATERIAL', 'P') IS NOT NULL DROP PROCEDURE GRANIZADO.MIGRAR_MATERIAL;
+IF OBJECT_ID('GRANIZADO.MIGRAR_MADERA', 'P') IS NOT NULL DROP PROCEDURE GRANIZADO.MIGRAR_MADERA;
+IF OBJECT_ID('GRANIZADO.MIGRAR_TELA', 'P') IS NOT NULL DROP PROCEDURE GRANIZADO.MIGRAR_TELA;
+IF OBJECT_ID('GRANIZADO.MIGRAR_RELLENO', 'P') IS NOT NULL DROP PROCEDURE GRANIZADO.MIGRAR_RELLENO;
+IF OBJECT_ID('GRANIZADO.MIGRAR_MEDIDA', 'P') IS NOT NULL DROP PROCEDURE GRANIZADO.MIGRAR_MEDIDA;
+IF OBJECT_ID('GRANIZADO.MIGRAR_MODELO', 'P') IS NOT NULL DROP PROCEDURE GRANIZADO.MIGRAR_MODELO;
+IF OBJECT_ID('GRANIZADO.MIGRAR_SILLON', 'P') IS NOT NULL DROP PROCEDURE GRANIZADO.MIGRAR_SILLON;
+IF OBJECT_ID('GRANIZADO.MIGRAR_PEDIDO', 'P') IS NOT NULL DROP PROCEDURE GRANIZADO.MIGRAR_PEDIDO;
+IF OBJECT_ID('GRANIZADO.MIGRAR_PEDIDO_CANCELADO', 'P') IS NOT NULL DROP PROCEDURE GRANIZADO.MIGRAR_PEDIDO_CANCELADO;
+IF OBJECT_ID('GRANIZADO.MIGRAR_DETALLE_PEDIDO', 'P') IS NOT NULL DROP PROCEDURE GRANIZADO.MIGRAR_DETALLE_PEDIDO;
+IF OBJECT_ID('GRANIZADO.MIGRAR_FACTURA', 'P') IS NOT NULL DROP PROCEDURE GRANIZADO.MIGRAR_FACTURA;
+IF OBJECT_ID('GRANIZADO.MIGRAR_DETALLE_FACTURA', 'P') IS NOT NULL DROP PROCEDURE GRANIZADO.MIGRAR_DETALLE_FACTURA;
+IF OBJECT_ID('GRANIZADO.MIGRAR_ENVIO', 'P') IS NOT NULL DROP PROCEDURE GRANIZADO.MIGRAR_ENVIO;
+IF OBJECT_ID('GRANIZADO.MIGRAR_COMPRA', 'P') IS NOT NULL DROP PROCEDURE GRANIZADO.MIGRAR_COMPRA;
+IF OBJECT_ID('GRANIZADO.MIGRAR_DETALLE_COMPRA', 'P') IS NOT NULL DROP PROCEDURE GRANIZADO.MIGRAR_DETALLE_COMPRA;
 
 -- Borrado del esquema si existe
 IF EXISTS (SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'GRANIZADO')
   DROP SCHEMA GRANIZADO;
 GO
-
 
 -- Crear esquema
 CREATE SCHEMA GRANIZADO;
@@ -99,11 +211,18 @@ CREATE TABLE GRANIZADO.DETALLE_COMPRA (
 -- Tabla MATERIAL
 CREATE TABLE GRANIZADO.MATERIAL (
   mat_id INT IDENTITY(1,1) NOT NULL,
-  Material_Tipo NVARCHAR(255),
+  tipo_material_id INT NOT NULL,
   Material_Nombre NVARCHAR(255),
   Material_Descripcion NVARCHAR(255),
   Material_Precio DECIMAL(38,2)
 );
+
+-- Tabla TIPO_MATERIAL
+CREATE TABLE GRANIZADO.TIPO_MATERIAL (
+    tipo_material_id INT IDENTITY(1,1) NOT NULL,
+    tipo_nombre NVARCHAR(255) NOT NULL
+);
+
 
 -- Tabla MADERA
 CREATE TABLE GRANIZADO.MADERA (
@@ -245,6 +364,9 @@ ALTER TABLE GRANIZADO.COMPRA
 ALTER TABLE GRANIZADO.DETALLE_COMPRA
   ADD CONSTRAINT PK_DETALLE_COMPRA PRIMARY KEY (id_det_compra);
 
+ALTER TABLE GRANIZADO.TIPO_MATERIAL
+  ADD CONSTRAINT PK_TIPO_MATERIAL PRIMARY KEY (tipo_material_id);
+
 ALTER TABLE GRANIZADO.MATERIAL
   ADD CONSTRAINT PK_MATERIAL PRIMARY KEY (mat_id);
 
@@ -317,6 +439,11 @@ ALTER TABLE GRANIZADO.COMPRA
 ALTER TABLE GRANIZADO.DETALLE_COMPRA
   ADD CONSTRAINT FK_DETCOMPRA_COMPRA FOREIGN KEY (compra_id) REFERENCES GRANIZADO.COMPRA(compra_id),
       CONSTRAINT FK_DETCOMPRA_MAT FOREIGN KEY (mat_id) REFERENCES GRANIZADO.MATERIAL(mat_id);
+    
+-- TIPO_MATERIAL → MATERIAL
+ALTER TABLE GRANIZADO.MATERIAL
+  ADD CONSTRAINT FK_MATERIAL_TIPO
+  FOREIGN KEY (tipo_material_id) REFERENCES GRANIZADO.TIPO_MATERIAL(tipo_material_id);
 
 -- SILLON → MODELO, MEDIDA, MATERIAL
 ALTER TABLE GRANIZADO.SILLON
@@ -369,11 +496,11 @@ BEGIN
     INSERT INTO GRANIZADO.PROVINCIA(prov_nombre)
     SELECT DISTINCT Provincia
     FROM (
-        SELECT Sucursal_Provincia AS Provincia FROM gd_esquema.Maestra WHERE Sucursal_Provincia IS NOT NULL
+        SELECT Sucursal_Provincia AS Provincia FROM GD1C2025.gd_esquema.Maestra WHERE Sucursal_Provincia IS NOT NULL
         UNION
-        SELECT Cliente_Provincia FROM gd_esquema.Maestra WHERE Cliente_Provincia IS NOT NULL
+        SELECT Cliente_Provincia FROM GD1C2025.gd_esquema.Maestra WHERE Cliente_Provincia IS NOT NULL
         UNION
-        SELECT Proveedor_Provincia FROM gd_esquema.Maestra WHERE Proveedor_Provincia IS NOT NULL
+        SELECT Proveedor_Provincia FROM GD1C2025.gd_esquema.Maestra WHERE Proveedor_Provincia IS NOT NULL
     ) AS Provincias
 END
 GO
@@ -387,24 +514,25 @@ BEGIN
     SELECT DISTINCT p.provincia_id, l.localidad
     FROM (
         SELECT Cliente_Provincia AS Provincia, Cliente_Localidad AS Localidad
-        FROM gd_esquema.Maestra
+        FROM GD1C2025.gd_esquema.Maestra
         WHERE Cliente_Provincia IS NOT NULL AND Cliente_Localidad IS NOT NULL
 
         UNION
 
         SELECT Sucursal_Provincia, Sucursal_Localidad
-        FROM gd_esquema.Maestra
+        FROM GD1C2025.gd_esquema.Maestra
         WHERE Sucursal_Provincia IS NOT NULL AND Sucursal_Localidad IS NOT NULL
 
         UNION
 
         SELECT Proveedor_Provincia, Proveedor_Localidad
-        FROM gd_esquema.Maestra
+        FROM GD1C2025.gd_esquema.Maestra
         WHERE Proveedor_Provincia IS NOT NULL AND Proveedor_Localidad IS NOT NULL
     ) l
     JOIN GRANIZADO.PROVINCIA p ON p.prov_nombre = l.Provincia
 END
 GO
+
 
 
 -- Stored Procedure: MIGRAR_DIRECCION
@@ -418,15 +546,15 @@ BEGIN
         RIGHT(direccion_txt, LEN(direccion_txt) - CHARINDEX('N°', direccion_txt) - 1) AS dir_num_calle
     FROM (
         SELECT Cliente_Direccion AS direccion_txt, Cliente_Provincia AS prov, Cliente_Localidad AS loc
-        FROM gd_esquema.Maestra
+        FROM GD1C2025.gd_esquema.Maestra
         WHERE Cliente_Direccion IS NOT NULL
         UNION
         SELECT Sucursal_Direccion, Sucursal_Provincia, Sucursal_Localidad
-        FROM gd_esquema.Maestra
+        FROM GD1C2025.gd_esquema.Maestra
         WHERE Sucursal_Direccion IS NOT NULL
         UNION
         SELECT Proveedor_Direccion, Proveedor_Provincia, Proveedor_Localidad
-        FROM gd_esquema.Maestra
+        FROM GD1C2025.gd_esquema.Maestra
         WHERE Proveedor_Direccion IS NOT NULL
     ) AS direcciones
     INNER JOIN GRANIZADO.PROVINCIA p ON p.prov_nombre = direcciones.prov
@@ -441,7 +569,7 @@ AS
 BEGIN
     INSERT INTO GRANIZADO.SUCURSAL(direccion_id, Sucursal_NroSucursal, Sucursal_telefono, Sucursal_mail)
     SELECT DISTINCT d.direccion_id, m.Sucursal_NroSucursal, m.Sucursal_telefono, m.Sucursal_mail
-    FROM gd_esquema.Maestra m
+    FROM GD1C2025.gd_esquema.Maestra m
     JOIN GRANIZADO.PROVINCIA p ON p.prov_nombre = m.Sucursal_Provincia
     JOIN GRANIZADO.LOCALIDAD l ON l.localidad_nombre = m.Sucursal_Localidad AND l.provincia_id = p.provincia_id
     JOIN GRANIZADO.DIRECCION d ON 
@@ -459,7 +587,7 @@ AS
 BEGIN
     INSERT INTO GRANIZADO.PROVEEDOR(direccion_id, Proveedor_RazonSocial, Proveedor_Telefono, Proveedor_Mail)
     SELECT DISTINCT d.direccion_id, m.Proveedor_RazonSocial, m.Proveedor_Telefono, m.Proveedor_Mail
-    FROM gd_esquema.Maestra m
+    FROM GD1C2025.gd_esquema.Maestra m
     INNER JOIN GRANIZADO.PROVINCIA p 
         ON p.prov_nombre = m.Proveedor_Provincia
     INNER JOIN GRANIZADO.LOCALIDAD l 
@@ -479,7 +607,7 @@ AS
 BEGIN
     INSERT INTO GRANIZADO.CLIENTE(Cliente_nombre, Cliente_Apellido, Cliente_FechaNacimiento, direccion_id, Cliente_Telefono, Cliente_Mail)
     SELECT DISTINCT m.Cliente_Nombre, m.Cliente_Apellido, m.Cliente_FechaNacimiento, d.direccion_id, m.Cliente_Telefono, m.Cliente_Mail
-    FROM gd_esquema.Maestra m
+    FROM GD1C2025.gd_esquema.Maestra m
     JOIN GRANIZADO.PROVINCIA p ON p.prov_nombre = m.Cliente_Provincia
     JOIN GRANIZADO.LOCALIDAD l ON l.localidad_nombre = m.Cliente_Localidad AND l.provincia_id = p.provincia_id
     JOIN GRANIZADO.DIRECCION d ON 
@@ -490,14 +618,29 @@ BEGIN
 END
 GO
 
+-- Stored Procedure: MIGRAR_TIPO_MATERIAL
+CREATE PROCEDURE GRANIZADO.MIGRAR_TIPO_MATERIAL
+AS
+BEGIN
+    INSERT INTO GRANIZADO.TIPO_MATERIAL(tipo_nombre)
+    SELECT DISTINCT Material_Tipo
+    FROM GD1C2025.gd_esquema.Maestra
+    WHERE Material_Tipo IS NOT NULL
+END
+GO
 
 -- Stored Procedure: MIGRAR_MATERIAL
 CREATE PROCEDURE GRANIZADO.MIGRAR_MATERIAL
 AS
 BEGIN
-    INSERT INTO GRANIZADO.MATERIAL(Material_Tipo, Material_Nombre, Material_Descripcion, Material_Precio)
-    SELECT DISTINCT m.Material_Tipo, m.Material_Nombre, m.Material_Descripcion, m.Material_Precio
-    FROM gd_esquema.Maestra m
+    INSERT INTO GRANIZADO.MATERIAL (tipo_material_id, Material_Nombre, Material_Descripcion, Material_Precio)
+    SELECT
+        tm.tipo_material_id,
+        m.Material_Nombre,
+        m.Material_Descripcion,
+        m.Material_Precio
+    FROM GD1C2025.gd_esquema.Maestra m
+    JOIN GRANIZADO.TIPO_MATERIAL tm ON m.Material_Tipo = tm.tipo_nombre
     WHERE m.Material_Nombre IS NOT NULL
 END
 GO
@@ -508,7 +651,7 @@ AS
 BEGIN
     INSERT INTO GRANIZADO.MADERA(Madera_Color, Madera_Dureza)
     SELECT DISTINCT Madera_Color, Madera_Dureza
-    FROM gd_esquema.Maestra
+    FROM GD1C2025.gd_esquema.Maestra
     WHERE Madera_Color IS NOT NULL
 END
 GO
@@ -519,7 +662,7 @@ AS
 BEGIN
     INSERT INTO GRANIZADO.TELA(Tela_Color, Tela_Textura)
     SELECT DISTINCT Tela_Color, Tela_Textura
-    FROM gd_esquema.Maestra
+    FROM GD1C2025.gd_esquema.Maestra
     WHERE Tela_Color IS NOT NULL
 END
 GO
@@ -530,7 +673,7 @@ AS
 BEGIN
     INSERT INTO GRANIZADO.RELLENO(Relleno_Densidad)
     SELECT DISTINCT Relleno_Densidad
-    FROM gd_esquema.Maestra
+    FROM GD1C2025.gd_esquema.Maestra
     WHERE Relleno_Densidad IS NOT NULL
 END
 GO
@@ -541,7 +684,7 @@ AS
 BEGIN
     INSERT INTO GRANIZADO.MEDIDA(precio, Sillon_Medida_Alto, Sillon_Medida_Ancho, Sillon_Medida_Profundidad)
     SELECT DISTINCT Sillon_Medida_Precio, Sillon_Medida_Alto, Sillon_Medida_Ancho, Sillon_Medida_Profundidad
-    FROM gd_esquema.Maestra
+    FROM GD1C2025.gd_esquema.Maestra
     WHERE Sillon_Medida_Alto IS NOT NULL
 END
 GO
@@ -552,7 +695,7 @@ AS
 BEGIN
     INSERT INTO GRANIZADO.MODELO(nombre_modelo, precio_modelo)
     SELECT DISTINCT Sillon_Modelo, Sillon_Modelo_Precio
-    FROM gd_esquema.Maestra
+    FROM GD1C2025.gd_esquema.Maestra
     WHERE Sillon_Modelo IS NOT NULL
 END
 GO
@@ -562,14 +705,24 @@ CREATE PROCEDURE GRANIZADO.MIGRAR_SILLON
 AS
 BEGIN
     INSERT INTO GRANIZADO.SILLON(Sillon_Codigo, Sillon_Modelo_Codigo, med_id, mat_id, Sillon_Modelo_Descripcion)
-    SELECT DISTINCT m.Sillon_Codigo, mo.mod_id, me.med_id, ma.mat_id, m.Sillon_Modelo_Descripcion
-    FROM gd_esquema.Maestra m
+    SELECT DISTINCT 
+        m.Sillon_Codigo, 
+        mo.mod_id, 
+        me.med_id, 
+        ma.mat_id, 
+        m.Sillon_Modelo_Descripcion
+    FROM GD1C2025.gd_esquema.Maestra m
     JOIN GRANIZADO.MODELO mo ON mo.nombre_modelo = m.Sillon_Modelo
-    JOIN GRANIZADO.MEDIDA me ON me.Sillon_Medida_Alto = m.Sillon_Medida_Alto AND me.Sillon_Medida_Ancho = m.Sillon_Medida_Ancho AND me.Sillon_Medida_Profundidad = m.Sillon_Medida_Profundidad
-    JOIN GRANIZADO.MATERIAL ma ON ma.Material_Nombre = m.Material_Nombre AND ma.Material_Tipo = m.Material_Tipo
+    JOIN GRANIZADO.MEDIDA me ON me.Sillon_Medida_Alto = m.Sillon_Medida_Alto 
+                              AND me.Sillon_Medida_Ancho = m.Sillon_Medida_Ancho 
+                              AND me.Sillon_Medida_Profundidad = m.Sillon_Medida_Profundidad
+    JOIN GRANIZADO.TIPO_MATERIAL tm ON m.Material_Tipo = tm.tipo_nombre
+    JOIN GRANIZADO.MATERIAL ma ON ma.Material_Nombre = m.Material_Nombre 
+                               AND ma.tipo_material_id = tm.tipo_material_id
     WHERE m.Sillon_Codigo IS NOT NULL
 END
 GO
+
 
 -- Stored Procedure: MIGRAR_PEDIDO
 CREATE PROCEDURE GRANIZADO.MIGRAR_PEDIDO
@@ -577,7 +730,7 @@ AS
 BEGIN
     INSERT INTO GRANIZADO.PEDIDO(Pedido_Numero, Pedido_Fecha, suc_id, cli_id, Pedido_Total, Pedido_Estado, Pedido_Cancelacion_Fecha, Pedido_Cancelacion_Motivo)
     SELECT DISTINCT Pedido_Numero, Pedido_Fecha, s.suc_id, c.cli_id, Pedido_Total, Pedido_Estado, Pedido_Cancelacion_Fecha, Pedido_Cancelacion_Motivo
-    FROM gd_esquema.Maestra m
+    FROM GD1C2025.gd_esquema.Maestra m
     JOIN GRANIZADO.SUCURSAL s ON s.Sucursal_NroSucursal = m.Sucursal_NroSucursal
     JOIN GRANIZADO.CLIENTE c ON c.Cliente_Mail = m.Cliente_Mail AND c.Cliente_nombre = m.Cliente_Nombre AND c.Cliente_Apellido = m.Cliente_Apellido
     WHERE Pedido_Numero IS NOT NULL
@@ -590,7 +743,7 @@ AS
 BEGIN
     INSERT INTO GRANIZADO.PEDIDO_CANCELADO(Pedido_Numero, Pedido_Cancelacion_Fecha, Pedido_Cancelacion_Motivo)
     SELECT DISTINCT Pedido_Numero, Pedido_Cancelacion_Fecha, Pedido_Cancelacion_Motivo
-    FROM gd_esquema.Maestra
+    FROM GD1C2025.gd_esquema.Maestra
     WHERE Pedido_Cancelacion_Fecha IS NOT NULL
 END
 GO
@@ -601,7 +754,7 @@ AS
 BEGIN
     INSERT INTO GRANIZADO.DETALLE_PEDIDO(Pedido_Numero, Sillon_Codigo, Detalle_Pedido_Cantidad, Detalle_Pedido_Precio, Detalle_Pedido_SubTotal)
     SELECT DISTINCT Pedido_Numero, Sillon_Codigo, Detalle_Pedido_Cantidad, Detalle_Pedido_Precio, Detalle_Pedido_SubTotal
-    FROM gd_esquema.Maestra
+    FROM GD1C2025.gd_esquema.Maestra
     WHERE Sillon_Codigo IS NOT NULL
 END
 GO
@@ -612,7 +765,7 @@ AS
 BEGIN
     INSERT INTO GRANIZADO.FACTURA(cli_id, suc_id, Factura_Numero, Factura_Fecha, Factura_Total)
     SELECT DISTINCT c.cli_id, s.suc_id, Factura_Numero, Factura_Fecha, Factura_Total
-    FROM gd_esquema.Maestra m
+    FROM GD1C2025.gd_esquema.Maestra m
     JOIN GRANIZADO.CLIENTE c ON c.Cliente_Mail = m.Cliente_Mail AND c.Cliente_nombre = m.Cliente_Nombre AND c.Cliente_Apellido = m.Cliente_Apellido
     JOIN GRANIZADO.SUCURSAL s ON s.Sucursal_NroSucursal = m.Sucursal_NroSucursal
     WHERE Factura_Numero IS NOT NULL
@@ -625,7 +778,7 @@ AS
 BEGIN
     INSERT INTO GRANIZADO.DETALLE_FACTURA(det_pedido_id, fact_id, Detalle_Factura_Precio, Detalle_Factura_Cantidad, Detalle_Factura_SubTotal)
     SELECT TOP dp.det_pedido_id, f.fact_id, m.Detalle_Factura_Precio, m.Detalle_Factura_Cantidad, m.Detalle_Factura_SubTotal
-    FROM gd_esquema.Maestra m
+    FROM GD1C2025.gd_esquema.Maestra m
     JOIN GRANIZADO.FACTURA f ON f.Factura_Numero = m.Factura_Numero
     JOIN GRANIZADO.DETALLE_PEDIDO dp ON dp.Pedido_Numero = m.Pedido_Numero AND dp.Detalle_Pedido_SubTotal = m.Detalle_Pedido_SubTotal
     WHERE m.Factura_Numero IS NOT NULL
@@ -638,7 +791,7 @@ AS
 BEGIN
     INSERT INTO GRANIZADO.ENVIO(Envio_Numero, fact_id, Envio_Fecha_Programada, Envio_Fecha, Envio_ImporteTraslado, Envio_ImporteSubida, Envio_Total)
     SELECT DISTINCT Envio_Numero, f.fact_id, Envio_Fecha_Programada, Envio_Fecha, Envio_ImporteTraslado, Envio_importeSubida, Envio_Total
-    FROM gd_esquema.Maestra m
+    FROM GD1C2025.gd_esquema.Maestra m
     JOIN GRANIZADO.FACTURA f ON f.Factura_Numero = m.Factura_Numero
     WHERE Envio_Numero IS NOT NULL
 END
@@ -650,7 +803,7 @@ AS
 BEGIN
     INSERT INTO GRANIZADO.COMPRA(compra_id, suc_id, prov_id, Compra_Fecha, Compra_Total)
     SELECT DISTINCT Compra_Numero, s.suc_id, p.prov_id, Compra_Fecha, Compra_Total
-    FROM gd_esquema.Maestra m
+    FROM GD1C2025.gd_esquema.Maestra m
     JOIN GRANIZADO.SUCURSAL s ON s.Sucursal_NroSucursal = m.Sucursal_NroSucursal
     JOIN GRANIZADO.PROVEEDOR p ON p.Proveedor_RazonSocial = m.Proveedor_RazonSocial
     WHERE Compra_Numero IS NOT NULL
@@ -662,13 +815,19 @@ CREATE PROCEDURE GRANIZADO.MIGRAR_DETALLE_COMPRA
 AS
 BEGIN
     INSERT INTO GRANIZADO.DETALLE_COMPRA(compra_id, mat_id, Detalle_Compra_Precio, Detalle_Compra_Cantidad, Detalle_Compra_SubTotal)
-    SELECT DISTINCT Compra_Numero, m2.mat_id, Detalle_Compra_Precio, Detalle_Compra_Cantidad, Detalle_Compra_SubTotal
-    FROM gd_esquema.Maestra m
-    JOIN GRANIZADO.MATERIAL m2 ON m2.Material_Nombre = m.Material_Nombre AND m2.Material_Tipo = m.Material_Tipo
-    WHERE Compra_Numero IS NOT NULL
+    SELECT DISTINCT 
+        m.Compra_Numero, 
+        ma.mat_id, 
+        m.Detalle_Compra_Precio, 
+        m.Detalle_Compra_Cantidad, 
+        m.Detalle_Compra_SubTotal
+    FROM GD1C2025.gd_esquema.Maestra m
+    JOIN GRANIZADO.TIPO_MATERIAL tm ON m.Material_Tipo = tm.tipo_nombre
+    JOIN GRANIZADO.MATERIAL ma ON ma.Material_Nombre = m.Material_Nombre 
+                               AND ma.tipo_material_id = tm.tipo_material_id
+    WHERE m.Compra_Numero IS NOT NULL
 END
 GO
-
 
 EXEC GRANIZADO.MIGRAR_PROVINCIA
 EXEC GRANIZADO.MIGRAR_LOCALIDAD
@@ -676,6 +835,7 @@ EXEC GRANIZADO.MIGRAR_DIRECCION
 EXEC GRANIZADO.MIGRAR_SUCURSAL
 EXEC GRANIZADO.MIGRAR_PROVEEDOR
 EXEC GRANIZADO.MIGRAR_CLIENTE
+EXEC GRANIZADO.MIGRAR_TIPO_MATERIAL
 EXEC GRANIZADO.MIGRAR_MATERIAL
 EXEC GRANIZADO.MIGRAR_MADERA
 EXEC GRANIZADO.MIGRAR_TELA
@@ -691,4 +851,7 @@ EXEC GRANIZADO.MIGRAR_DETALLE_FACTURA
 EXEC GRANIZADO.MIGRAR_ENVIO
 EXEC GRANIZADO.MIGRAR_COMPRA
 EXEC GRANIZADO.MIGRAR_DETALLE_COMPRA
+GO
+
+PRINT 'Migracion finalizada'
 GO
