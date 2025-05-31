@@ -255,7 +255,7 @@ CREATE TABLE GRANIZADO.MEDIDA (
 
 -- Tabla MODELO
 CREATE TABLE GRANIZADO.MODELO (
-  mod_id INT IDENTITY(1,1) NOT NULL,
+  Sillon_Modelo_Codigo INT NOT NULL,
   nombre_modelo NVARCHAR(255),
   precio_modelo DECIMAL(18,2)
 );
@@ -319,6 +319,7 @@ CREATE TABLE GRANIZADO.FACTURA (
   Factura_Total DECIMAL(38,2)
 );
 
+
 -- Tabla DETALLE_FACTURA
 CREATE TABLE GRANIZADO.DETALLE_FACTURA (
   det_fact_id INT IDENTITY(1,1) NOT NULL,
@@ -340,7 +341,6 @@ CREATE TABLE GRANIZADO.ENVIO (
   Envio_Total DECIMAL(18,2)
 );
 GO
-
 
 -- PRIMARY KEYS
 ALTER TABLE GRANIZADO.PROVINCIA
@@ -383,7 +383,7 @@ ALTER TABLE GRANIZADO.MEDIDA
   ADD CONSTRAINT PK_MEDIDA PRIMARY KEY (med_id);
 
 ALTER TABLE GRANIZADO.MODELO
-  ADD CONSTRAINT PK_MODELO PRIMARY KEY (mod_id);
+  ADD CONSTRAINT PK_MODELO PRIMARY KEY (Sillon_Modelo_Codigo);
 
 ALTER TABLE GRANIZADO.SILLON
   ADD CONSTRAINT PK_SILLON PRIMARY KEY (Sillon_Codigo);
@@ -447,7 +447,7 @@ ALTER TABLE GRANIZADO.MATERIAL
 
 -- SILLON → MODELO, MEDIDA, MATERIAL
 ALTER TABLE GRANIZADO.SILLON
-  ADD CONSTRAINT FK_SILLON_MODELO FOREIGN KEY (Sillon_Modelo_Codigo) REFERENCES GRANIZADO.MODELO(mod_id),
+  ADD CONSTRAINT FK_SILLON_MODELO FOREIGN KEY (Sillon_Modelo_Codigo) REFERENCES GRANIZADO.MODELO(Sillon_Modelo_Codigo),
       CONSTRAINT FK_SILLON_MEDIDA FOREIGN KEY (med_id) REFERENCES GRANIZADO.MEDIDA(med_id),
       CONSTRAINT FK_SILLON_MATERIAL FOREIGN KEY (mat_id) REFERENCES GRANIZADO.MATERIAL(mat_id);
 
@@ -693,10 +693,10 @@ GO
 CREATE PROCEDURE GRANIZADO.MIGRAR_MODELO
 AS
 BEGIN
-    INSERT INTO GRANIZADO.MODELO(nombre_modelo, precio_modelo)
-    SELECT DISTINCT Sillon_Modelo, Sillon_Modelo_Precio
+    INSERT INTO GRANIZADO.MODELO(Sillon_Modelo_Codigo, nombre_modelo, precio_modelo)
+    SELECT DISTINCT Sillon_Modelo_Codigo, Sillon_Modelo, Sillon_Modelo_Precio
     FROM GD1C2025.gd_esquema.Maestra
-    WHERE Sillon_Modelo IS NOT NULL
+    WHERE Sillon_Modelo_Codigo IS NOT NULL
 END
 GO
 
@@ -708,7 +708,7 @@ BEGIN
     INSERT INTO GRANIZADO.SILLON(Sillon_Codigo, Sillon_Modelo_Codigo, med_id, mat_id, Sillon_Modelo_Descripcion)
     SELECT DISTINCT 
         m.Sillon_Codigo, 
-        mo.mod_id, 
+        mo.Sillon_Modelo_Codigo, 
         me.med_id, 
         ma.mat_id, 
         m.Sillon_Modelo_Descripcion
@@ -723,6 +723,7 @@ BEGIN
     WHERE m.Sillon_Codigo IS NOT NULL
 END
 GO
+
 
 
 -- Stored Procedure: MIGRAR_PEDIDO
