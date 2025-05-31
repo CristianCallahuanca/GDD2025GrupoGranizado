@@ -415,7 +415,7 @@ BEGIN
     SELECT DISTINCT
         l.localidad_id,
         LEFT(direccion_txt, CHARINDEX(' N°', direccion_txt) - 1) AS direccion_calle,
-        TRY_CAST(LTRIM(RIGHT(direccion_txt, LEN(direccion_txt) - CHARINDEX('N°', direccion_txt) - 1)) AS INT) AS dir_num_calle
+        RIGHT(direccion_txt, LEN(direccion_txt) - CHARINDEX('N°', direccion_txt) - 1) AS dir_num_calle
     FROM (
         SELECT Cliente_Direccion AS direccion_txt, Cliente_Provincia AS prov, Cliente_Localidad AS loc
         FROM gd_esquema.Maestra
@@ -444,10 +444,14 @@ BEGIN
     FROM gd_esquema.Maestra m
     JOIN GRANIZADO.PROVINCIA p ON p.prov_nombre = m.Sucursal_Provincia
     JOIN GRANIZADO.LOCALIDAD l ON l.localidad_nombre = m.Sucursal_Localidad AND l.provincia_id = p.provincia_id
-    JOIN GRANIZADO.DIRECCION d ON d.direccion_calle = m.Sucursal_Direccion AND d.localidad_id = l.localidad_id
+    JOIN GRANIZADO.DIRECCION d ON 
+        d.direccion_calle = LEFT(m.Sucursal_Direccion, CHARINDEX(' N°', m.Sucursal_Direccion) - 1)
+        AND d.dir_num_calle = RIGHT(m.Sucursal_Direccion, LEN(m.Sucursal_Direccion) - CHARINDEX('N°', m.Sucursal_Direccion) - 1)
+        AND d.localidad_id = l.localidad_id
     WHERE m.Sucursal_NroSucursal IS NOT NULL
 END
 GO
+
 
 -- Stored Procedure: MIGRAR_PROVEEDOR
 CREATE PROCEDURE GRANIZADO.MIGRAR_PROVEEDOR
@@ -456,12 +460,18 @@ BEGIN
     INSERT INTO GRANIZADO.PROVEEDOR(direccion_id, Proveedor_RazonSocial, Proveedor_Telefono, Proveedor_Mail)
     SELECT DISTINCT d.direccion_id, m.Proveedor_RazonSocial, m.Proveedor_Telefono, m.Proveedor_Mail
     FROM gd_esquema.Maestra m
-    JOIN GRANIZADO.PROVINCIA p ON p.prov_nombre = m.Proveedor_Provincia
-    JOIN GRANIZADO.LOCALIDAD l ON l.localidad_nombre = m.Proveedor_Localidad AND l.provincia_id = p.provincia_id
-    JOIN GRANIZADO.DIRECCION d ON d.direccion_calle = m.Proveedor_Direccion AND d.localidad_id = l.localidad_id
+    INNER JOIN GRANIZADO.PROVINCIA p 
+        ON p.prov_nombre = m.Proveedor_Provincia
+    INNER JOIN GRANIZADO.LOCALIDAD l 
+        ON l.localidad_nombre = m.Proveedor_Localidad AND l.provincia_id = p.provincia_id
+    INNER JOIN GRANIZADO.DIRECCION d 
+        ON d.direccion_calle = LEFT(m.Proveedor_Direccion, CHARINDEX(' N°', m.Proveedor_Direccion) - 1)
+        AND d.dir_num_calle = RIGHT(m.Proveedor_Direccion, LEN(m.Proveedor_Direccion) - CHARINDEX('N° ', m.Proveedor_Direccion) - 1)
+        AND d.localidad_id = l.localidad_id
     WHERE m.Proveedor_RazonSocial IS NOT NULL
 END
 GO
+
 
 -- Stored Procedure: MIGRAR_CLIENTE
 CREATE PROCEDURE GRANIZADO.MIGRAR_CLIENTE
@@ -472,10 +482,14 @@ BEGIN
     FROM gd_esquema.Maestra m
     JOIN GRANIZADO.PROVINCIA p ON p.prov_nombre = m.Cliente_Provincia
     JOIN GRANIZADO.LOCALIDAD l ON l.localidad_nombre = m.Cliente_Localidad AND l.provincia_id = p.provincia_id
-    JOIN GRANIZADO.DIRECCION d ON d.direccion_calle = m.Cliente_Direccion AND d.localidad_id = l.localidad_id
+    JOIN GRANIZADO.DIRECCION d ON 
+        d.direccion_calle = LEFT(m.Cliente_Direccion, CHARINDEX(' N°', m.Cliente_Direccion) - 1)
+        AND d.dir_num_calle = RIGHT(m.Cliente_Direccion, LEN(m.Cliente_Direccion) - CHARINDEX('N°', m.Cliente_Direccion) - 1)
+        AND d.localidad_id = l.localidad_id
     WHERE m.Cliente_Dni IS NOT NULL
 END
 GO
+
 
 -- Stored Procedure: MIGRAR_MATERIAL
 CREATE PROCEDURE GRANIZADO.MIGRAR_MATERIAL
