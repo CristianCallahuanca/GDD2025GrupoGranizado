@@ -29,26 +29,38 @@ IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_SILLON_MATERIAL')
 ALTER TABLE GRANIZADO.SILLON DROP CONSTRAINT FK_SILLON_MATERIAL;
 IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_CLIENTE_DIRECCION')
 ALTER TABLE GRANIZADO.CLIENTE DROP CONSTRAINT FK_CLIENTE_DIRECCION;
+
 IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_PEDIDO_CLIENTE')
-ALTER TABLE GRANIZADO.PEDIDO DROP CONSTRAINT FK_PEDIDO_CLIENTE;
+    ALTER TABLE GRANIZADO.PEDIDO DROP CONSTRAINT FK_PEDIDO_CLIENTE;
+
 IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_PEDIDO_SUC')
-ALTER TABLE GRANIZADO.PEDIDO DROP CONSTRAINT FK_PEDIDO_SUC;
+    ALTER TABLE GRANIZADO.PEDIDO DROP CONSTRAINT FK_PEDIDO_SUC;
+
 IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_PEDCAN_PED')
-ALTER TABLE GRANIZADO.PEDIDO_CANCELADO DROP CONSTRAINT FK_PEDCAN_PED;
+    ALTER TABLE GRANIZADO.PEDIDO_CANCELADO DROP CONSTRAINT FK_PEDCAN_PED;
+
+
 IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_DETPEDIDO_PED')
-ALTER TABLE GRANIZADO.DETALLE_PEDIDO DROP CONSTRAINT FK_DETPEDIDO_PED;
+    ALTER TABLE GRANIZADO.DETALLE_PEDIDO DROP CONSTRAINT FK_DETPEDIDO_PED;
+
 IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_DETPEDIDO_SILLON')
-ALTER TABLE GRANIZADO.DETALLE_PEDIDO DROP CONSTRAINT FK_DETPEDIDO_SILLON;
+    ALTER TABLE GRANIZADO.DETALLE_PEDIDO DROP CONSTRAINT FK_DETPEDIDO_SILLON;
+
 IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_FACTURA_CLI')
-ALTER TABLE GRANIZADO.FACTURA DROP CONSTRAINT FK_FACTURA_CLI;
+    ALTER TABLE GRANIZADO.FACTURA DROP CONSTRAINT FK_FACTURA_CLI;
+
 IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_FACTURA_SUC')
-ALTER TABLE GRANIZADO.FACTURA DROP CONSTRAINT FK_FACTURA_SUC;
+    ALTER TABLE GRANIZADO.FACTURA DROP CONSTRAINT FK_FACTURA_SUC;
+
 IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_DETFACT_FACT')
-ALTER TABLE GRANIZADO.DETALLE_FACTURA DROP CONSTRAINT FK_DETFACT_FACT;
+    ALTER TABLE GRANIZADO.DETALLE_FACTURA DROP CONSTRAINT FK_DETFACT_FACT;
+
 IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_DETFACT_PEDIDO')
-ALTER TABLE GRANIZADO.DETALLE_FACTURA DROP CONSTRAINT FK_DETFACT_PEDIDO;
+    ALTER TABLE GRANIZADO.DETALLE_FACTURA DROP CONSTRAINT FK_DETFACT_PEDIDO;
+
 IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_ENVIO_FACT')
-ALTER TABLE GRANIZADO.ENVIO DROP CONSTRAINT FK_ENVIO_FACT;
+    ALTER TABLE GRANIZADO.ENVIO DROP CONSTRAINT FK_ENVIO_FACT;
+
 IF EXISTS (SELECT 1 FROM sys.key_constraints WHERE name = 'PK_PROVINCIA')
 ALTER TABLE GRANIZADO.PROVINCIA DROP CONSTRAINT PK_PROVINCIA;
 IF EXISTS (SELECT 1 FROM sys.key_constraints WHERE name = 'PK_LOCALIDAD')
@@ -81,18 +93,24 @@ IF EXISTS (SELECT 1 FROM sys.key_constraints WHERE name = 'PK_SILLON')
 ALTER TABLE GRANIZADO.SILLON DROP CONSTRAINT PK_SILLON;
 IF EXISTS (SELECT 1 FROM sys.key_constraints WHERE name = 'PK_CLIENTE')
 ALTER TABLE GRANIZADO.CLIENTE DROP CONSTRAINT PK_CLIENTE;
+
 IF EXISTS (SELECT 1 FROM sys.key_constraints WHERE name = 'PK_PEDIDO')
-ALTER TABLE GRANIZADO.PEDIDO DROP CONSTRAINT PK_PEDIDO;
+    ALTER TABLE GRANIZADO.PEDIDO DROP CONSTRAINT PK_PEDIDO;
+
 IF EXISTS (SELECT 1 FROM sys.key_constraints WHERE name = 'PK_PEDIDO_CANCELADO')
-ALTER TABLE GRANIZADO.PEDIDO_CANCELADO DROP CONSTRAINT PK_PEDIDO_CANCELADO;
+    ALTER TABLE GRANIZADO.PEDIDO_CANCELADO DROP CONSTRAINT PK_PEDIDO_CANCELADO;
+
 IF EXISTS (SELECT 1 FROM sys.key_constraints WHERE name = 'PK_DETALLE_PEDIDO')
-ALTER TABLE GRANIZADO.DETALLE_PEDIDO DROP CONSTRAINT PK_DETALLE_PEDIDO;
+    ALTER TABLE GRANIZADO.DETALLE_PEDIDO DROP CONSTRAINT PK_DETALLE_PEDIDO;
+
 IF EXISTS (SELECT 1 FROM sys.key_constraints WHERE name = 'PK_FACTURA')
-ALTER TABLE GRANIZADO.FACTURA DROP CONSTRAINT PK_FACTURA;
+    ALTER TABLE GRANIZADO.FACTURA DROP CONSTRAINT PK_FACTURA;
+
 IF EXISTS (SELECT 1 FROM sys.key_constraints WHERE name = 'PK_DETALLE_FACTURA')
-ALTER TABLE GRANIZADO.DETALLE_FACTURA DROP CONSTRAINT PK_DETALLE_FACTURA;
+    ALTER TABLE GRANIZADO.DETALLE_FACTURA DROP CONSTRAINT PK_DETALLE_FACTURA;
+
 IF EXISTS (SELECT 1 FROM sys.key_constraints WHERE name = 'PK_ENVIO')
-ALTER TABLE GRANIZADO.ENVIO DROP CONSTRAINT PK_ENVIO;
+    ALTER TABLE GRANIZADO.ENVIO DROP CONSTRAINT PK_ENVIO;
 
 -- Borrado de tablas si existen
 IF OBJECT_ID('GRANIZADO.DETALLE_FACTURA','U') IS NOT NULL DROP TABLE GRANIZADO.DETALLE_FACTURA;
@@ -118,6 +136,8 @@ IF OBJECT_ID('GRANIZADO.SUCURSAL','U') IS NOT NULL DROP TABLE GRANIZADO.SUCURSAL
 IF OBJECT_ID('GRANIZADO.DIRECCION','U') IS NOT NULL DROP TABLE GRANIZADO.DIRECCION;
 IF OBJECT_ID('GRANIZADO.LOCALIDAD','U') IS NOT NULL DROP TABLE GRANIZADO.LOCALIDAD;
 IF OBJECT_ID('GRANIZADO.PROVINCIA','U') IS NOT NULL DROP TABLE GRANIZADO.PROVINCIA;
+IF OBJECT_ID('GRANIZADO.SILLON_MATERIAL','U') IS NOT NULL DROP TABLE GRANIZADO.SILLON_MATERIAL;
+
 
 -- Borrado de Stored Procedures
 IF OBJECT_ID('GRANIZADO.MIGRAR_PROVINCIA', 'P') IS NOT NULL DROP PROCEDURE GRANIZADO.MIGRAR_PROVINCIA;
@@ -143,6 +163,7 @@ IF OBJECT_ID('GRANIZADO.MIGRAR_DETALLE_FACTURA', 'P') IS NOT NULL DROP PROCEDURE
 IF OBJECT_ID('GRANIZADO.MIGRAR_ENVIO', 'P') IS NOT NULL DROP PROCEDURE GRANIZADO.MIGRAR_ENVIO;
 IF OBJECT_ID('GRANIZADO.MIGRAR_COMPRA', 'P') IS NOT NULL DROP PROCEDURE GRANIZADO.MIGRAR_COMPRA;
 IF OBJECT_ID('GRANIZADO.MIGRAR_DETALLE_COMPRA', 'P') IS NOT NULL DROP PROCEDURE GRANIZADO.MIGRAR_DETALLE_COMPRA;
+
 
 -- Borrado del esquema si existe
 IF EXISTS (SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'GRANIZADO')
@@ -294,9 +315,7 @@ CREATE TABLE GRANIZADO.CLIENTE (
 
 -- Tabla PEDIDO
 CREATE TABLE GRANIZADO.PEDIDO (
-  pedido_id INT IDENTITY(1,1),
   Pedido_Numero DECIMAL(18,0) NOT NULL,
-  Sillon_Codigo BIGINT,
   Pedido_Fecha DATETIME2(6),
   Sucursal_NroSucursal BIGINT NOT NULL,
   cli_id INT,
@@ -309,16 +328,17 @@ CREATE TABLE GRANIZADO.PEDIDO (
 
 -- Tabla PEDIDO_CANCELADO
 CREATE TABLE GRANIZADO.PEDIDO_CANCELADO (
-  pedido_id INT NOT NULL,
+  Pedido_Numero DECIMAL(18,0) NOT NULL,
+  Sucursal_NroSucursal BIGINT NOT NULL,
   Pedido_Cancelacion_Fecha DATETIME2(6),
   Pedido_Cancelacion_Motivo VARCHAR(255)
 );
 
 -- Tabla DETALLE_PEDIDO
 CREATE TABLE GRANIZADO.DETALLE_PEDIDO (
-  det_pedido_id INT IDENTITY(1,1) NOT NULL,
-  pedido_id INT NOT NULL,
-  Sillon_Codigo BIGINT,
+  Pedido_Numero DECIMAL(18,0) NOT NULL,
+  Sucursal_NroSucursal BIGINT NOT NULL,
+  Sillon_Codigo BIGINT NOT NULL,
   Detalle_Pedido_Cantidad BIGINT,
   Detalle_Pedido_Precio DECIMAL(18,2),
   Detalle_Pedido_SubTotal DECIMAL(18,2)
@@ -326,21 +346,20 @@ CREATE TABLE GRANIZADO.DETALLE_PEDIDO (
 
 -- Tabla FACTURA
 CREATE TABLE GRANIZADO.FACTURA (
-  fact_id INT IDENTITY(1,1),
   Factura_Numero BIGINT NOT NULL,
   Sucursal_NroSucursal BIGINT NOT NULL, 
   cli_id INT NOT NULL,                     
   Factura_Fecha DATETIME2(6),
-  Factura_Tipo NVARCHAR(255),
   Factura_Total DECIMAL(18,2)
 );
 
 
 -- Tabla DETALLE_FACTURA
 CREATE TABLE GRANIZADO.DETALLE_FACTURA (
-  det_fact_id INT IDENTITY(1,1) NOT NULL,
-  det_pedido_id INT,
-  fact_id INT NOT NULL,
+  Factura_Numero BIGINT NOT NULL,
+  Sucursal_NroSucursal BIGINT NOT NULL,
+  Pedido_Numero DECIMAL(18,0) NOT NULL,
+  Sillon_Codigo BIGINT NOT NULL,
   Detalle_Factura_Precio DECIMAL(18,2),
   Detalle_Factura_Cantidad DECIMAL(18,0),
   Detalle_Factura_SubTotal DECIMAL(18,2)
@@ -348,9 +367,9 @@ CREATE TABLE GRANIZADO.DETALLE_FACTURA (
 
 -- Tabla ENVIO
 CREATE TABLE GRANIZADO.ENVIO (
-  envio_id INT IDENTITY(1,1),
   Envio_Numero DECIMAL(18,0) NOT NULL,
-  fact_id INT NOT NULL,
+  Factura_Numero BIGINT NOT NULL,
+  Sucursal_NroSucursal BIGINT NOT NULL,
   Envio_Fecha_Programada DATETIME2(6),
   Envio_Fecha DATETIME2(6),
   Envio_ImporteTraslado DECIMAL(18,2),
@@ -413,22 +432,27 @@ ALTER TABLE GRANIZADO.CLIENTE
   ADD CONSTRAINT PK_CLIENTE PRIMARY KEY (cli_id);
 
 ALTER TABLE GRANIZADO.PEDIDO
-  ADD CONSTRAINT PK_PEDIDO PRIMARY KEY (pedido_id);
+  ADD CONSTRAINT PK_PEDIDO PRIMARY KEY (Pedido_Numero);
 
 ALTER TABLE GRANIZADO.PEDIDO_CANCELADO
-  ADD CONSTRAINT PK_PEDIDO_CANCELADO PRIMARY KEY (pedido_id);
+  ADD CONSTRAINT PK_PEDIDO_CANCELADO PRIMARY KEY (Pedido_Numero, Sucursal_NroSucursal);
 
 ALTER TABLE GRANIZADO.DETALLE_PEDIDO
-  ADD CONSTRAINT PK_DETALLE_PEDIDO PRIMARY KEY (det_pedido_id);
+  ADD CONSTRAINT PK_DETALLE_PEDIDO PRIMARY KEY (Pedido_Numero, Sucursal_NroSucursal, Sillon_Codigo);
 
 ALTER TABLE GRANIZADO.FACTURA
-  ADD CONSTRAINT PK_FACTURA PRIMARY KEY (fact_id);
+  ADD CONSTRAINT PK_FACTURA PRIMARY KEY (Factura_Numero);
 
 ALTER TABLE GRANIZADO.DETALLE_FACTURA
-  ADD CONSTRAINT PK_DETALLE_FACTURA PRIMARY KEY (det_fact_id);
+  ADD CONSTRAINT PK_DETALLE_FACTURA PRIMARY KEY (
+    Factura_Numero, 
+    Sucursal_NroSucursal, 
+    Pedido_Numero, 
+    Sillon_Codigo
+  );
 
 ALTER TABLE GRANIZADO.ENVIO
-  ADD CONSTRAINT PK_ENVIO PRIMARY KEY (envio_id);
+  ADD CONSTRAINT PK_ENVIO PRIMARY KEY (Envio_Numero, Factura_Numero, Sucursal_NroSucursal);
 
 
 -- LOCALIDAD → PROVINCIA
@@ -487,12 +511,12 @@ ALTER TABLE GRANIZADO.PEDIDO
 
 -- PEDIDO_CANCELADO → PEDIDO
 ALTER TABLE GRANIZADO.PEDIDO_CANCELADO
-  ADD CONSTRAINT FK_PEDCAN_PED FOREIGN KEY (pedido_id)
-  REFERENCES GRANIZADO.PEDIDO(pedido_id);
+  ADD CONSTRAINT FK_PEDCAN_PED FOREIGN KEY (Pedido_Numero)
+  REFERENCES GRANIZADO.PEDIDO(Pedido_Numero);
 
 -- DETALLE_PEDIDO → PEDIDO, SILLON
 ALTER TABLE GRANIZADO.DETALLE_PEDIDO
-  ADD CONSTRAINT FK_DETPEDIDO_PED FOREIGN KEY (pedido_id) REFERENCES GRANIZADO.PEDIDO(pedido_id),
+  ADD CONSTRAINT FK_DETPEDIDO_PED FOREIGN KEY (Pedido_Numero) REFERENCES GRANIZADO.PEDIDO(Pedido_Numero),
       CONSTRAINT FK_DETPEDIDO_SILLON FOREIGN KEY (Sillon_Codigo) REFERENCES GRANIZADO.SILLON(Sillon_Codigo);
 
 -- FACTURA → CLIENTE, SUCURSAL
@@ -502,13 +526,13 @@ ALTER TABLE GRANIZADO.FACTURA
 
 -- DETALLE_FACTURA → FACTURA, DETALLE_PEDIDO
 ALTER TABLE GRANIZADO.DETALLE_FACTURA
-  ADD CONSTRAINT FK_DETFACT_FACT FOREIGN KEY (fact_id) REFERENCES GRANIZADO.FACTURA(fact_id),
-      CONSTRAINT FK_DETFACT_PEDIDO FOREIGN KEY (det_pedido_id) REFERENCES GRANIZADO.DETALLE_PEDIDO(det_pedido_id);
+  ADD CONSTRAINT FK_DETFACT_FACT FOREIGN KEY (Factura_Numero) REFERENCES GRANIZADO.FACTURA(Factura_Numero),
+      CONSTRAINT FK_DETFACT_PEDIDO FOREIGN KEY (Pedido_Numero, Sucursal_NroSucursal, Sillon_Codigo) REFERENCES GRANIZADO.DETALLE_PEDIDO(Pedido_Numero, Sucursal_NroSucursal, Sillon_Codigo);
 
 -- ENVIO → FACTURA
 ALTER TABLE GRANIZADO.ENVIO
-  ADD CONSTRAINT FK_ENVIO_FACT FOREIGN KEY (fact_id)
-  REFERENCES GRANIZADO.FACTURA(fact_id);
+  ADD CONSTRAINT FK_ENVIO_FACT FOREIGN KEY (Factura_Numero)
+  REFERENCES GRANIZADO.FACTURA(Factura_Numero);
 GO
 
 
@@ -765,60 +789,92 @@ BEGIN
 END
 GO
 
--- Stored Procedure: MIGRAR_PEDIDO
 CREATE PROCEDURE GRANIZADO.MIGRAR_PEDIDO
 AS
 BEGIN
-    INSERT INTO GRANIZADO.PEDIDO(Pedido_Numero, Pedido_Fecha, Sucursal_NroSucursal, cli_id, Pedido_Total, Pedido_Estado, Pedido_Cancelacion_Fecha, Pedido_Cancelacion_Motivo)
-    SELECT DISTINCT
-        m.Pedido_Numero, 
-        m.Pedido_Fecha, 
-        s.Sucursal_NroSucursal, 
-        c.cli_id, 
-        m.Pedido_Total, 
-        m.Pedido_Estado, 
-        m.Pedido_Cancelacion_Fecha, 
-        m.Pedido_Cancelacion_Motivo
+    INSERT INTO GRANIZADO.PEDIDO (
+        Pedido_Numero,
+        Pedido_Fecha,
+        Sucursal_NroSucursal,
+        cli_id,
+        Pedido_Total,
+        Pedido_Estado,
+        Pedido_Cancelacion_Fecha,
+        Pedido_Cancelacion_Motivo
+    )
+    SELECT
+        m.Pedido_Numero,
+        MAX(m.Pedido_Fecha),
+        MAX(s.Sucursal_NroSucursal),
+        MAX(c.cli_id),
+        MAX(m.Pedido_Total),
+        MAX(m.Pedido_Estado),
+        MAX(m.Pedido_Cancelacion_Fecha),
+        MAX(m.Pedido_Cancelacion_Motivo)
     FROM GD1C2025.gd_esquema.Maestra m
     JOIN GRANIZADO.SUCURSAL s 
         ON s.Sucursal_NroSucursal = m.Sucursal_NroSucursal
     JOIN GRANIZADO.CLIENTE c 
         ON c.Cliente_Mail = m.Cliente_Mail 
-       AND c.Cliente_nombre = m.Cliente_Nombre 
+       AND c.Cliente_Nombre = m.Cliente_Nombre 
        AND c.Cliente_Apellido = m.Cliente_Apellido
     WHERE m.Pedido_Numero IS NOT NULL
+      AND m.Sucursal_NroSucursal IS NOT NULL
+    GROUP BY m.Pedido_Numero
 END
 GO
+
+
 
 
 -- Stored Procedure: MIGRAR_PEDIDO_CANCELADO
 CREATE PROCEDURE GRANIZADO.MIGRAR_PEDIDO_CANCELADO
 AS
 BEGIN
-    INSERT INTO GRANIZADO.PEDIDO_CANCELADO(pedido_id, Pedido_Cancelacion_Fecha, Pedido_Cancelacion_Motivo)
-    SELECT DISTINCT p.pedido_id, m.Pedido_Cancelacion_Fecha, m.Pedido_Cancelacion_Motivo
+    INSERT INTO GRANIZADO.PEDIDO_CANCELADO(
+      Pedido_Numero, 
+      Sucursal_NroSucursal, 
+      Pedido_Cancelacion_Fecha, 
+      Pedido_Cancelacion_Motivo
+    )
+    SELECT DISTINCT 
+        m.Pedido_Numero,
+        m.Sucursal_NroSucursal,
+        m.Pedido_Cancelacion_Fecha,
+        m.Pedido_Cancelacion_Motivo
     FROM GD1C2025.gd_esquema.Maestra m
-    JOIN GRANIZADO.PEDIDO p ON p.Pedido_Numero = m.Pedido_Numero
     WHERE m.Pedido_Cancelacion_Fecha IS NOT NULL
+      AND m.Pedido_Numero IS NOT NULL
+      AND m.Sucursal_NroSucursal IS NOT NULL
 END
 GO
+
 
 
 -- Stored Procedure: MIGRAR_DETALLE_PEDIDO
 CREATE PROCEDURE GRANIZADO.MIGRAR_DETALLE_PEDIDO
 AS
 BEGIN
-    INSERT INTO GRANIZADO.DETALLE_PEDIDO(pedido_id, Sillon_Codigo, Detalle_Pedido_Cantidad, Detalle_Pedido_Precio, Detalle_Pedido_SubTotal)
+    INSERT INTO GRANIZADO.DETALLE_PEDIDO(
+      Pedido_Numero, 
+      Sucursal_NroSucursal, 
+      Sillon_Codigo, 
+      Detalle_Pedido_Cantidad, 
+      Detalle_Pedido_Precio, 
+      Detalle_Pedido_SubTotal
+    )
     SELECT DISTINCT 
-        p.pedido_id,
+        m.Pedido_Numero,
+        m.Sucursal_NroSucursal,
         s.Sillon_Codigo,
         m.Detalle_Pedido_Cantidad,
         m.Detalle_Pedido_Precio,
         m.Detalle_Pedido_SubTotal
     FROM GD1C2025.gd_esquema.Maestra m
-    JOIN GRANIZADO.PEDIDO p ON p.Pedido_Numero = m.Pedido_Numero
     JOIN GRANIZADO.SILLON s ON s.Sillon_Codigo = m.Sillon_Codigo
     WHERE m.Sillon_Codigo IS NOT NULL
+      AND m.Pedido_Numero IS NOT NULL
+      AND m.Sucursal_NroSucursal IS NOT NULL
 END
 GO
 
@@ -826,65 +882,97 @@ GO
 CREATE PROCEDURE GRANIZADO.MIGRAR_FACTURA
 AS
 BEGIN
-    INSERT INTO GRANIZADO.FACTURA(cli_id, Sucursal_NroSucursal, Factura_Numero, Factura_Fecha, Factura_Total)
-    SELECT DISTINCT
-        c.cli_id, 
-        s.Sucursal_NroSucursal, 
-        m.Factura_Numero, 
-        m.Factura_Fecha, 
-        m.Factura_Total
+    INSERT INTO GRANIZADO.FACTURA (
+        Factura_Numero,
+        Sucursal_NroSucursal,
+        cli_id,
+        Factura_Fecha,
+        Factura_Total
+    )
+    SELECT
+        m.Factura_Numero,
+        MAX(s.Sucursal_NroSucursal),
+        MAX(c.cli_id),
+        MAX(m.Factura_Fecha),
+        MAX(m.Factura_Total)
     FROM GD1C2025.gd_esquema.Maestra m
     JOIN GRANIZADO.CLIENTE c 
         ON c.Cliente_Mail = m.Cliente_Mail 
-       AND c.Cliente_nombre = m.Cliente_Nombre 
+       AND c.Cliente_Nombre = m.Cliente_Nombre 
        AND c.Cliente_Apellido = m.Cliente_Apellido
     JOIN GRANIZADO.SUCURSAL s 
         ON s.Sucursal_NroSucursal = m.Sucursal_NroSucursal
     WHERE m.Factura_Numero IS NOT NULL
+    GROUP BY m.Factura_Numero
 END
 GO
 
 
--- Stored Procedure: MIGRAR_DETALLE_FACTURA
 CREATE PROCEDURE GRANIZADO.MIGRAR_DETALLE_FACTURA
 AS
 BEGIN
-    INSERT INTO GRANIZADO.DETALLE_FACTURA(det_pedido_id, fact_id, Detalle_Factura_Precio, Detalle_Factura_Cantidad, Detalle_Factura_SubTotal)
-    SELECT DISTINCT 
-        dp.det_pedido_id,
-        f.fact_id,
-        m.Detalle_Factura_Precio,
-        m.Detalle_Factura_Cantidad,
-        m.Detalle_Factura_SubTotal
+    INSERT INTO GRANIZADO.DETALLE_FACTURA (
+      Factura_Numero,
+      Sucursal_NroSucursal,
+      Pedido_Numero,
+      Sillon_Codigo,
+      Detalle_Factura_Precio,
+      Detalle_Factura_Cantidad,
+      Detalle_Factura_SubTotal
+    )
+    SELECT 
+      f.Factura_Numero,
+      dp.Sucursal_NroSucursal,
+      dp.Pedido_Numero,
+      dp.Sillon_Codigo,
+      MAX(m.Detalle_Factura_Precio),
+      MAX(m.Detalle_Factura_Cantidad),
+      MAX(m.Detalle_Factura_SubTotal)
     FROM GD1C2025.gd_esquema.Maestra m
-    JOIN GRANIZADO.FACTURA f ON f.Factura_Numero = m.Factura_Numero
-    JOIN GRANIZADO.PEDIDO p ON p.Pedido_Numero = m.Pedido_Numero
-    JOIN GRANIZADO.DETALLE_PEDIDO dp 
-        ON dp.pedido_id = p.pedido_id
-        AND dp.Detalle_Pedido_Cantidad = m.Detalle_Pedido_Cantidad
-        AND dp.Detalle_Pedido_SubTotal = m.Detalle_Pedido_SubTotal
+    JOIN GRANIZADO.FACTURA f
+      ON f.Factura_Numero = m.Factura_Numero
+    JOIN GRANIZADO.DETALLE_PEDIDO dp
+      ON dp.Pedido_Numero = m.Pedido_Numero
+    GROUP BY 
+      f.Factura_Numero,
+      dp.Sucursal_NroSucursal,
+      dp.Pedido_Numero,
+      dp.Sillon_Codigo
 END
 GO
 
--- Stored Procedure: MIGRAR_ENVIO
+
+
+
 CREATE PROCEDURE GRANIZADO.MIGRAR_ENVIO
 AS
 BEGIN
-    INSERT INTO GRANIZADO.ENVIO(Envio_Numero, fact_id, Envio_Fecha_Programada, Envio_Fecha, Envio_ImporteTraslado, Envio_ImporteSubida, Envio_Total)
+    INSERT INTO GRANIZADO.ENVIO(
+      Envio_Numero,
+      Factura_Numero,
+      Sucursal_NroSucursal,
+      Envio_Fecha_Programada,
+      Envio_Fecha,
+      Envio_ImporteTraslado,
+      Envio_ImporteSubida,
+      Envio_Total
+    )
     SELECT DISTINCT
-        m.Envio_Numero, 
-        f.fact_id, 
-        m.Envio_Fecha_Programada, 
-        m.Envio_Fecha, 
-        m.Envio_ImporteTraslado, 
-        m.Envio_ImporteSubida, 
+        m.Envio_Numero,
+        m.Factura_Numero,
+        m.Sucursal_NroSucursal,
+        m.Envio_Fecha_Programada,
+        m.Envio_Fecha,
+        m.Envio_ImporteTraslado,
+        m.Envio_ImporteSubida,
         m.Envio_Total
     FROM GD1C2025.gd_esquema.Maestra m
-    JOIN GRANIZADO.FACTURA f 
-        ON f.Factura_Numero = m.Factura_Numero
     WHERE m.Envio_Numero IS NOT NULL
+      AND m.Factura_Numero IS NOT NULL
+      AND m.Sucursal_NroSucursal IS NOT NULL
 END
 GO
+
 
 CREATE PROCEDURE GRANIZADO.MIGRAR_COMPRA
 AS
@@ -943,4 +1031,146 @@ EXEC GRANIZADO.MIGRAR_DETALLE_COMPRA
 GO
 
 PRINT 'Migracion finalizada'
+GO
+
+
+
+
+-- Tabla BI_FACTURACION
+CREATE TABLE GRANIZADO.BI_FACTURACION (
+    id_factura INT PRIMARY KEY,
+    id_tiempo INT,
+    id_cliente INT,
+    id_ubicacion INT,
+    id_turno INT,
+    monto_total DECIMAL(18,2)
+    -- FOREIGN KEY (id_tiempo) REFERENCES GRANIZADO.BI_TIEMPO(id_tiempo),
+    -- FOREIGN KEY (id_cliente) REFERENCES GRANIZADO.BI_CLIENTE(id_cliente),
+    -- FOREIGN KEY (id_ubicacion) REFERENCES GRANIZADO.BI_UBICACION(id_ubicacion),
+    -- FOREIGN KEY (id_turno) REFERENCES GRANIZADO.BI_TURNO(id_turno)
+);
+GO
+
+-- Tabla BI_COMPRAS
+CREATE TABLE GRANIZADO.BI_COMPRAS (
+    id_compra INT PRIMARY KEY,
+    id_tiempo INT,
+    id_ubicacion INT,
+    id_tipo_material INT,
+    monto_total DECIMAL(18,2)
+    -- FOREIGN KEY (id_tiempo) REFERENCES GRANIZADO.BI_TIEMPO(id_tiempo),
+    -- FOREIGN KEY (id_ubicacion) REFERENCES GRANIZADO.BI_UBICACION(id_ubicacion),
+    -- FOREIGN KEY (id_tipo_material) REFERENCES GRANIZADO.BI_TIPO_MATERIAL(id_tipo_material)
+);
+GO
+
+-- Tabla BI_PEDIDOS
+CREATE TABLE GRANIZADO.BI_PEDIDOS (
+    id_pedido INT PRIMARY KEY,
+    id_tiempo INT,
+    id_cliente INT,
+    id_ubicacion INT,
+    id_turno INT,
+    id_estado_pedido INT,
+    id_modelo INT,
+    cantidad INT,
+    subtotal DECIMAL(18,2)
+    -- FOREIGN KEY (id_tiempo) REFERENCES GRANIZADO.BI_TIEMPO(id_tiempo),
+    -- FOREIGN KEY (id_cliente) REFERENCES GRANIZADO.BI_CLIENTE(id_cliente),
+    -- FOREIGN KEY (id_ubicacion) REFERENCES GRANIZADO.BI_UBICACION(id_ubicacion),
+    -- FOREIGN KEY (id_turno) REFERENCES GRANIZADO.BI_TURNO(id_turno),
+    -- FOREIGN KEY (id_estado_pedido) REFERENCES GRANIZADO.BI_ESTADO_PEDIDO(id_estado_pedido),
+    -- FOREIGN KEY (id_modelo) REFERENCES GRANIZADO.BI_MODELO(id_modelo)
+);
+GO
+
+-- Tabla BI_ENVIOS
+CREATE TABLE GRANIZADO.BI_ENVIOS (
+    id_envio INT PRIMARY KEY,
+    id_tiempo INT,
+    id_cliente INT,
+    id_ubicacion INT,
+    envio_programado DATE,
+    envio_real DATE,
+    cumplido BIT,
+    costo_total_envio DECIMAL(18,2)
+    -- FOREIGN KEY (id_tiempo) REFERENCES GRANIZADO.BI_TIEMPO(id_tiempo),
+    -- FOREIGN KEY (id_cliente) REFERENCES GRANIZADO.BI_CLIENTE(id_cliente),
+    -- FOREIGN KEY (id_ubicacion) REFERENCES GRANIZADO.BI_UBICACION(id_ubicacion)
+);
+GO
+
+
+CREATE TABLE GRANIZADO.BI_TIEMPO (
+    id_tiempo INT PRIMARY KEY,
+    anio INT,
+    mes INT,
+    cuatrimestre INT
+);
+
+CREATE TABLE GRANIZADO.BI_CLIENTE (
+    id_cliente INT PRIMARY KEY,
+    edad INT,
+    rango_etario NVARCHAR(50)
+);
+
+CREATE TABLE GRANIZADO.BI_UBICACION (
+    id_ubicacion INT PRIMARY KEY,
+    provincia NVARCHAR(100),
+    localidad NVARCHAR(100)
+);
+
+CREATE TABLE GRANIZADO.BI_TURNO (
+    id_turno INT PRIMARY KEY,
+    descripcion_turno NVARCHAR(50)  -- Ej: "00-06", "06-12", etc.
+);
+
+CREATE TABLE GRANIZADO.BI_ESTADO_PEDIDO (
+    id_estado_pedido INT PRIMARY KEY,
+    descripcion_estado NVARCHAR(100) -- Ej: "Entregado", "Cancelado"
+);
+
+CREATE TABLE GRANIZADO.BI_MODELO (
+    id_modelo INT PRIMARY KEY,
+    nombre_modelo NVARCHAR(100)
+);
+
+CREATE TABLE GRANIZADO.BI_TIPO_MATERIAL (
+    id_tipo_material INT PRIMARY KEY,
+    tipo NVARCHAR(100) -- "Tela", "Madera", "Relleno"
+);
+
+
+ALTER TABLE GRANIZADO.BI_FACTURACION
+ADD CONSTRAINT FK_BI_FACT_TIEMPO FOREIGN KEY (id_tiempo) REFERENCES GRANIZADO.BI_TIEMPO(id_tiempo),
+    CONSTRAINT FK_BI_FACT_CLIENTE FOREIGN KEY (id_cliente) REFERENCES GRANIZADO.BI_CLIENTE(id_cliente),
+    CONSTRAINT FK_BI_FACT_UBICACION FOREIGN KEY (id_ubicacion) REFERENCES GRANIZADO.BI_UBICACION(id_ubicacion),
+    CONSTRAINT FK_BI_FACT_TURNO FOREIGN KEY (id_turno) REFERENCES GRANIZADO.BI_TURNO(id_turno);
+GO
+
+ALTER TABLE GRANIZADO.BI_COMPRAS
+ADD CONSTRAINT FK_BI_COMP_TIEMPO FOREIGN KEY (id_tiempo) REFERENCES GRANIZADO.BI_TIEMPO(id_tiempo),
+    CONSTRAINT FK_BI_COMP_UBICACION FOREIGN KEY (id_ubicacion) REFERENCES GRANIZADO.BI_UBICACION(id_ubicacion),
+    CONSTRAINT FK_BI_COMP_TIPO_MAT FOREIGN KEY (id_tipo_material) REFERENCES GRANIZADO.BI_TIPO_MATERIAL(id_tipo_material);
+GO
+
+ALTER TABLE GRANIZADO.BI_PEDIDOS
+ADD CONSTRAINT FK_BI_PED_TIEMPO FOREIGN KEY (id_tiempo) REFERENCES GRANIZADO.BI_TIEMPO(id_tiempo),
+    CONSTRAINT FK_BI_PED_CLIENTE FOREIGN KEY (id_cliente) REFERENCES GRANIZADO.BI_CLIENTE(id_cliente),
+    CONSTRAINT FK_BI_PED_UBICACION FOREIGN KEY (id_ubicacion) REFERENCES GRANIZADO.BI_UBICACION(id_ubicacion),
+    CONSTRAINT FK_BI_PED_TURNO FOREIGN KEY (id_turno) REFERENCES GRANIZADO.BI_TURNO(id_turno),
+    CONSTRAINT FK_BI_PED_ESTADO FOREIGN KEY (id_estado_pedido) REFERENCES GRANIZADO.BI_ESTADO_PEDIDO(id_estado_pedido),
+    CONSTRAINT FK_BI_PED_MODELO FOREIGN KEY (id_modelo) REFERENCES GRANIZADO.BI_MODELO(id_modelo);
+GO
+
+ALTER TABLE GRANIZADO.BI_ENVIOS
+ADD CONSTRAINT FK_BI_ENV_TIEMPO FOREIGN KEY (id_tiempo) REFERENCES GRANIZADO.BI_TIEMPO(id_tiempo),
+    CONSTRAINT FK_BI_ENV_CLIENTE FOREIGN KEY (id_cliente) REFERENCES GRANIZADO.BI_CLIENTE(id_cliente),
+    CONSTRAINT FK_BI_ENV_UBICACION FOREIGN KEY (id_ubicacion) REFERENCES GRANIZADO.BI_UBICACION(id_ubicacion);
+GO
+
+ALTER TABLE GRANIZADO.BI_ENVIOS
+ADD CONSTRAINT FK_BI_ENV_TIEMPO FOREIGN KEY (id_tiempo) REFERENCES GRANIZADO.BI_TIEMPO(id_tiempo),
+    CONSTRAINT FK_BI_ENV_CLIENTE FOREIGN KEY (id_cliente) REFERENCES GRANIZADO.BI_CLIENTE(id_cliente),
+    CONSTRAINT FK_BI_ENV_UBICACION FOREIGN KEY (id_ubicacion) REFERENCES GRANIZADO.BI_UBICACION(id_ubicacion);
 GO
