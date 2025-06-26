@@ -1,3 +1,4 @@
+
 IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_BI_HECHOS_COMPRAS_id_tiempo')
     ALTER TABLE GRANIZADO.BI_HECHOS_COMPRAS DROP CONSTRAINT FK_BI_HECHOS_COMPRAS_id_tiempo;
 IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_BI_HECHOS_COMPRAS_id_ubicacion')
@@ -103,8 +104,10 @@ CREATE TABLE GRANIZADO.BI_TIEMPO (
 );
 
 CREATE TABLE GRANIZADO.BI_SUCURSAL (
-    id_sucursal INT IDENTITY(1,1) NOT NULL
+    id_sucursal INT IDENTITY(1,1) NOT NULL,
+	nro_sucursal BIGINT NOT NULL
 );
+
 
 -- TABLAS DE HECHOS
 CREATE TABLE GRANIZADO.BI_HECHOS_COMPRAS (
@@ -214,6 +217,27 @@ IF OBJECT_ID('GRANIZADO.MIGRAR_BI_PEDIDO', 'P') IS NOT NULL
     DROP PROCEDURE GRANIZADO.MIGRAR_BI_PEDIDO;
 GO
 
+IF OBJECT_ID('GRANIZADO.MIGRAR_BI_SUCURSAL', 'P') IS NOT NULL
+    DROP PROCEDURE GRANIZADO.MIGRAR_BI_SUCURSAL;
+GO
+
+
+IF OBJECT_ID('GRANIZADO.MIGRAR_BI_HECHOS_COMPRAS', 'P') IS NOT NULL
+    DROP PROCEDURE GRANIZADO.MIGRAR_BI_HECHOS_COMPRAS;
+GO
+
+IF OBJECT_ID('GRANIZADO.MIGRAR_BI_HECHOS_PEDIDOS', 'P') IS NOT NULL
+    DROP PROCEDURE GRANIZADO.MIGRAR_BI_HECHOS_PEDIDOS;
+GO
+
+IF OBJECT_ID('GRANIZADO.MIGRAR_BI_HECHOS_FACTURACION', 'P') IS NOT NULL
+    DROP PROCEDURE GRANIZADO.MIGRAR_BI_HECHOS_FACTURACION;
+GO
+
+IF OBJECT_ID('GRANIZADO.MIGRAR_BI_HECHOS_ENVIOS', 'P') IS NOT NULL
+    DROP PROCEDURE GRANIZADO.MIGRAR_BI_HECHOS_ENVIOS;
+GO
+
 
 CREATE PROCEDURE GRANIZADO.MIGRAR_BI_TIEMPO
 as
@@ -286,6 +310,129 @@ begin
 end
 go
 
+CREATE PROCEDURE GRANIZADO.MIGRAR_BI_SUCURSAL
+AS
+BEGIN
+    INSERT INTO GRANIZADO.BI_SUCURSAL (nro_sucursal)
+    SELECT 
+        Sucursal_NroSucursal
+    FROM GRANIZADO.SUCURSAL;
+END
+GO
+
+-- INSERT HECHOS
+
+CREATE PROCEDURE GRANIZADO.MIGRAR_BI_HECHOS_COMPRAS
+AS
+BEGIN
+    INSERT INTO GRANIZADO.BI_HECHOS_COMPRAS (id_tiempo, id_ubicacion_sucursal, id_sucursal, id_tipo_material, monto_total)
+    SELECT 
+        T.id_tiempo,
+        U.id_ubicacion,
+        S.id_sucursal,
+        TM.id_tipo_material,
+        C.Compra_Total
+    FROM GRANIZADO.COMPRA C
+    JOIN GRANIZADO.SUCURSAL SU ON SU.Sucursal_NroSucursal = C.Sucursal_NroSucursal
+    JOIN GRANIZADO.DIRECCION DIR ON DIR.direccion_id = SU.direccion_id
+    JOIN GRANIZADO.LOCALIDAD L ON L.localidad_id = DIR.localidad_id
+    JOIN GRANIZADO.PROVINCIA P ON P.provincia_id = L.provincia_id
+    JOIN GRANIZADO.BI_UBICACION U ON U.localidad = L.localidad_nombre AND U.provincia = P.prov_nombre
+    JOIN GRANIZADO.BI_SUCURSAL S ON S.nro_sucursal = SU.Sucursal_NroSucursal
+    JOIN GRANIZADO.DETALLE_COMPRA DC ON DC.compra_id = C.compra_id
+    JOIN GRANIZADO.MATERIAL M ON M.mat_id = DC.mat_id
+    JOIN GRANIZADO.TIPO_MATERIAL TMAT ON TMAT.tipo_material_id = M.tipo_material_id
+    JOIN GRANIZADO.BI_TIPO_MATERIAL TM ON TM.tipo = TMAT.tipo_nombre
+    JOIN GRANIZADO.BI_TIEMPO T ON T.anio = YEAR(C.Compra_Fecha) AND T.mes = MONTH(C.Compra_Fecha)
+END
+GO
+
+CREATE PROCEDURE GRANIZADO.MIGRAR_BI_HECHOS_PEDIDOS
+AS
+BEGIN
+    INSERT INTO GRANIZADO.BI_HECHOS_PEDIDOS (id_tiempo, id_rango_etario, id_turno, id_estado_pedido, id_modelo, id_sucursal, cantidad)
+    SELECT 
+        T.id_tiempo,
+        RE.id_rango_etario,
+        TU.id_turno,
+        EP.id_estado_pedido,
+        MO.id_modelo,
+        S.id_sucursal,
+        DP.Detalle_Pedido_Cantidad
+    FROM GRANIZADO.PEDIDO P
+    JOIN GRANIZADO.DETALLE_PEDIDO DP ON DP.Pedido_Numero = P.Pedido_Numero AND DP.Sucursal_NroSucursal = P.Sucursal_NroSucursal
+    JOIN GRANIZADO.SILLON SI ON SI.Sillon_Codigo = DP.Sillon_Codigo
+    JOIN GRANIZADO.MODELO M ON M.mod_id = SI.Sillon_Modelo_Codigo
+    JOIN GRANIZADO.BI_MODELO MO ON MO.nombre_modelo = M.nombre_modelo
+    JOIN GRANIZADO.CLIENTE C ON C.cli_id = P.cli_id
+    JOIN GRANIZADO.BI_SUCURSAL S ON S.nro_sucursal = P.Sucursal_NroSucursal
+    JOIN GRANIZADO.BI_ESTADO_PEDIDO EP ON EP.descripcion_estado = P.Pedido_Estado
+    JOIN GRANIZADO.BI_TIEMPO T ON T.anio = YEAR(P.Pedido_Fecha) AND T.mes = MONTH(P.Pedido_Fecha)
+    JOIN GRANIZADO.BI_RANGO_ETARIO RE ON 
+        DATEDIFF(YEAR, C.Cliente_FechaNacimiento, P.Pedido_Fecha) BETWEEN RE.rango_menor AND RE.rango_mayor
+    JOIN GRANIZADO.BI_TURNO TU ON 
+        CAST(FORMAT(P.Pedido_Fecha, 'HH:mm:ss') AS TIME) BETWEEN TU.hora_inicial AND TU.hora_final
+END
+GO
+
+
+CREATE PROCEDURE GRANIZADO.MIGRAR_BI_HECHOS_FACTURACION
+AS
+BEGIN
+    INSERT INTO GRANIZADO.BI_HECHOS_FACTURACION (id_tiempo, id_rango_etario, id_ubicacion_sucursal, id_turno, id_sucursal, monto_total)
+    SELECT 
+        T.id_tiempo,
+        RE.id_rango_etario,
+        U.id_ubicacion,
+        TU.id_turno,
+        S.id_sucursal,
+        F.Factura_Total
+    FROM GRANIZADO.FACTURA F
+    JOIN GRANIZADO.CLIENTE C ON C.cli_id = F.cli_id
+    JOIN GRANIZADO.SUCURSAL SU ON SU.Sucursal_NroSucursal = F.Sucursal_NroSucursal
+    JOIN GRANIZADO.DIRECCION DIR ON DIR.direccion_id = SU.direccion_id
+    JOIN GRANIZADO.LOCALIDAD L ON L.localidad_id = DIR.localidad_id
+    JOIN GRANIZADO.PROVINCIA P ON P.provincia_id = L.provincia_id
+    JOIN GRANIZADO.BI_UBICACION U ON U.localidad = L.localidad_nombre AND U.provincia = P.prov_nombre
+    JOIN GRANIZADO.BI_SUCURSAL S ON S.nro_sucursal = SU.Sucursal_NroSucursal
+    JOIN GRANIZADO.BI_TIEMPO T ON T.anio = YEAR(F.Factura_Fecha) AND T.mes = MONTH(F.Factura_Fecha)
+    JOIN GRANIZADO.BI_RANGO_ETARIO RE ON 
+        DATEDIFF(YEAR, C.Cliente_FechaNacimiento, F.Factura_Fecha) BETWEEN RE.rango_menor AND RE.rango_mayor
+    JOIN GRANIZADO.BI_TURNO TU ON 
+        CAST(FORMAT(F.Factura_Fecha, 'HH:mm:ss') AS TIME) BETWEEN TU.hora_inicial AND TU.hora_final
+END
+GO
+
+
+CREATE PROCEDURE GRANIZADO.MIGRAR_BI_HECHOS_ENVIOS
+AS
+BEGIN
+    INSERT INTO GRANIZADO.BI_HECHOS_ENVIOS (id_tiempo, id_rango_etario, id_ubicacion_cliente, cumplido, costo_total_envio)
+    SELECT 
+        T.id_tiempo,
+        RE.id_rango_etario,
+        U.id_ubicacion,
+        CASE WHEN E.Envio_Fecha IS NOT NULL THEN 1 ELSE 0 END,
+        E.Envio_Total
+    FROM GRANIZADO.ENVIO E
+    JOIN GRANIZADO.FACTURA F ON F.Factura_Numero = E.Factura_Numero
+    JOIN GRANIZADO.CLIENTE C ON C.cli_id = F.cli_id
+    JOIN GRANIZADO.DIRECCION DIR ON DIR.direccion_id = C.direccion_id
+    JOIN GRANIZADO.LOCALIDAD L ON L.localidad_id = DIR.localidad_id
+    JOIN GRANIZADO.PROVINCIA P ON P.provincia_id = L.provincia_id
+    JOIN GRANIZADO.BI_UBICACION U ON U.localidad = L.localidad_nombre AND U.provincia = P.prov_nombre
+    JOIN GRANIZADO.BI_TIEMPO T ON T.anio = YEAR(E.Envio_Fecha_Programada) AND T.mes = MONTH(E.Envio_Fecha_Programada)
+    JOIN GRANIZADO.BI_RANGO_ETARIO RE ON 
+        DATEDIFF(YEAR, C.Cliente_FechaNacimiento, E.Envio_Fecha_Programada) BETWEEN RE.rango_menor AND RE.rango_mayor
+END
+GO
+
+
+
+
+
+
+
 EXEC GRANIZADO.MIGRAR_BI_TIEMPO;
 EXEC GRANIZADO.MIGRAR_BI_UBICACION;
 EXEC GRANIZADO.MIGRAR_BI_RANGO_ETARIO;
@@ -293,3 +440,9 @@ EXEC GRANIZADO.MIGRAR_BI_TURNO;
 EXEC GRANIZADO.MIGRAR_BI_TIPO_MATERIAL;
 EXEC GRANIZADO.MIGRAR_BI_MODELO;
 EXEC GRANIZADO.MIGRAR_BI_PEDIDO;
+EXEC GRANIZADO.MIGRAR_BI_SUCURSAL;
+
+EXEC GRANIZADO.MIGRAR_BI_HECHOS_COMPRAS;
+EXEC GRANIZADO.MIGRAR_BI_HECHOS_PEDIDOS;
+EXEC GRANIZADO.MIGRAR_BI_HECHOS_FACTURACION;
+EXEC GRANIZADO.MIGRAR_BI_HECHOS_ENVIOS;
