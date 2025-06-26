@@ -1,3 +1,4 @@
+
 -- Borrado de constraints para luego poder borrar las tablas
 IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_LOCALIDAD_PROVINCIA')
 ALTER TABLE GRANIZADO.LOCALIDAD DROP CONSTRAINT FK_LOCALIDAD_PROVINCIA;
@@ -357,7 +358,6 @@ CREATE TABLE GRANIZADO.FACTURA (
 -- Tabla DETALLE_FACTURA
 CREATE TABLE GRANIZADO.DETALLE_FACTURA (
   Factura_Numero BIGINT NOT NULL,
-  Sucursal_NroSucursal BIGINT NOT NULL,
   Pedido_Numero DECIMAL(18,0) NOT NULL,
   Sillon_Codigo BIGINT NOT NULL,
   Detalle_Factura_Precio DECIMAL(18,2),
@@ -438,7 +438,7 @@ ALTER TABLE GRANIZADO.PEDIDO_CANCELADO
   ADD CONSTRAINT PK_PEDIDO_CANCELADO PRIMARY KEY (Pedido_Numero, Sucursal_NroSucursal);
 
 ALTER TABLE GRANIZADO.DETALLE_PEDIDO
-  ADD CONSTRAINT PK_DETALLE_PEDIDO PRIMARY KEY (Pedido_Numero, Sucursal_NroSucursal, Sillon_Codigo);
+  ADD CONSTRAINT PK_DETALLE_PEDIDO PRIMARY KEY (Pedido_Numero, Sillon_Codigo);
 
 ALTER TABLE GRANIZADO.FACTURA
   ADD CONSTRAINT PK_FACTURA PRIMARY KEY (Factura_Numero);
@@ -446,7 +446,6 @@ ALTER TABLE GRANIZADO.FACTURA
 ALTER TABLE GRANIZADO.DETALLE_FACTURA
   ADD CONSTRAINT PK_DETALLE_FACTURA PRIMARY KEY (
     Factura_Numero, 
-    Sucursal_NroSucursal, 
     Pedido_Numero, 
     Sillon_Codigo
   );
@@ -527,7 +526,7 @@ ALTER TABLE GRANIZADO.FACTURA
 -- DETALLE_FACTURA → FACTURA, DETALLE_PEDIDO
 ALTER TABLE GRANIZADO.DETALLE_FACTURA
   ADD CONSTRAINT FK_DETFACT_FACT FOREIGN KEY (Factura_Numero) REFERENCES GRANIZADO.FACTURA(Factura_Numero),
-      CONSTRAINT FK_DETFACT_PEDIDO FOREIGN KEY (Pedido_Numero, Sucursal_NroSucursal, Sillon_Codigo) REFERENCES GRANIZADO.DETALLE_PEDIDO(Pedido_Numero, Sucursal_NroSucursal, Sillon_Codigo);
+      CONSTRAINT FK_DETFACT_PEDIDO FOREIGN KEY (Pedido_Numero, Sillon_Codigo) REFERENCES GRANIZADO.DETALLE_PEDIDO(Pedido_Numero, Sillon_Codigo);
 
 -- ENVIO → FACTURA
 ALTER TABLE GRANIZADO.ENVIO
@@ -913,7 +912,6 @@ AS
 BEGIN
     INSERT INTO GRANIZADO.DETALLE_FACTURA (
       Factura_Numero,
-      Sucursal_NroSucursal,
       Pedido_Numero,
       Sillon_Codigo,
       Detalle_Factura_Precio,
@@ -922,12 +920,11 @@ BEGIN
     )
     SELECT 
       f.Factura_Numero,
-      dp.Sucursal_NroSucursal,
       dp.Pedido_Numero,
       dp.Sillon_Codigo,
-      MAX(m.Detalle_Factura_Precio),
-      MAX(m.Detalle_Factura_Cantidad),
-      MAX(m.Detalle_Factura_SubTotal)
+      MAX(dp.Detalle_Pedido_Precio),
+      MAX(dp.Detalle_Pedido_Cantidad),
+      MAX(dp.Detalle_Pedido_SubTotal)
     FROM GD1C2025.gd_esquema.Maestra m
     JOIN GRANIZADO.FACTURA f
       ON f.Factura_Numero = m.Factura_Numero
@@ -935,11 +932,12 @@ BEGIN
       ON dp.Pedido_Numero = m.Pedido_Numero
     GROUP BY 
       f.Factura_Numero,
-      dp.Sucursal_NroSucursal,
       dp.Pedido_Numero,
       dp.Sillon_Codigo
 END
 GO
+
+
 
 
 
@@ -1032,4 +1030,3 @@ GO
 
 PRINT 'Migracion finalizada'
 GO
-
