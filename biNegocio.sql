@@ -1,6 +1,4 @@
 
-
-
 IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_BI_HECHOS_COMPRAS_id_tiempo')
     ALTER TABLE GRANIZADO.BI_HECHOS_COMPRAS DROP CONSTRAINT FK_BI_HECHOS_COMPRAS_id_tiempo;
 IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_BI_HECHOS_COMPRAS_id_ubicacion')
@@ -440,7 +438,7 @@ BEGIN
         T.id_tiempo,
         RE.id_rango_etario,
         U.id_ubicacion,
-        CASE WHEN E.Envio_Fecha IS NOT NULL THEN 1 ELSE 0 END,
+        CASE WHEN  E.Envio_Fecha <= E.Envio_Fecha_Programada THEN 1 ELSE 0 END,
         E.Envio_Total
     FROM GRANIZADO.ENVIO E
     JOIN GRANIZADO.FACTURA F ON F.Factura_Numero = E.Factura_Numero
@@ -645,8 +643,6 @@ SELECT
 FROM GRANIZADO.BI_HECHOS_ENVIOS e
 JOIN GRANIZADO.BI_TIEMPO t ON e.id_tiempo = t.id_tiempo
 GROUP BY t.anio, t.mes;
-
-SELECT * FROM GRANIZADO.VW_CUMPLIMIENTO_ENVIOS
 
 --10)Top 3 localidades con mayor costo de envío promedio ME DA 3 COINCIDE
 
