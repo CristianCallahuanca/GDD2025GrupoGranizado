@@ -1,4 +1,3 @@
-
 IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_BI_HECHOS_COMPRAS_id_tiempo')
     ALTER TABLE GRANIZADO.BI_HECHOS_COMPRAS DROP CONSTRAINT FK_BI_HECHOS_COMPRAS_id_tiempo;
 IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_BI_HECHOS_COMPRAS_id_ubicacion')
@@ -52,6 +51,15 @@ IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_GANANCIAS_SUCURSAL')
     ALTER TABLE GRANIZADO.BI_HECHOS_GANANCIAS DROP CONSTRAINT FK_GANANCIAS_SUCURSAL;
 GO
 
+IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_BI_HECHOS_MODELO_FACTURADO_id_modelo')
+    ALTER TABLE GRANIZADO.BI_HECHOS_MODELO_FACTURADO DROP CONSTRAINT FK_BI_HECHOS_MODELO_FACTURADO_id_modelo;
+IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_BI_HECHOS_MODELO_FACTURADO_id_tiempo')
+    ALTER TABLE GRANIZADO.BI_HECHOS_MODELO_FACTURADO DROP CONSTRAINT FK_BI_HECHOS_MODELO_FACTURADO_id_tiempo;
+IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_BI_HECHOS_MODELO_FACTURADO_id_rango_etario')
+    ALTER TABLE GRANIZADO.BI_HECHOS_MODELO_FACTURADO DROP CONSTRAINT FK_BI_HECHOS_MODELO_FACTURADO_id_rango_etario; --nuevo
+
+
+IF OBJECT_ID('GRANIZADO.BI_HECHOS_MODELO_FACTURADO', 'U') IS NOT NULL DROP TABLE GRANIZADO.BI_HECHOS_MODELO_FACTURADO; --nuevo
 IF OBJECT_ID('GRANIZADO.BI_HECHOS_ENVIOS', 'U') IS NOT NULL DROP TABLE GRANIZADO.BI_HECHOS_ENVIOS;
 IF OBJECT_ID('GRANIZADO.BI_HECHOS_FACTURACION', 'U') IS NOT NULL DROP TABLE GRANIZADO.BI_HECHOS_FACTURACION;
 IF OBJECT_ID('GRANIZADO.BI_HECHOS_PEDIDOS', 'U') IS NOT NULL DROP TABLE GRANIZADO.BI_HECHOS_PEDIDOS;
@@ -181,6 +189,16 @@ CREATE TABLE GRANIZADO.BI_HECHOS_GANANCIAS (
 );
 GO
 
+-- nuevo
+CREATE TABLE GRANIZADO.BI_HECHOS_MODELO_FACTURADO ( 
+  id_modelo_facturado INT IDENTITY (1,1) NOT NULL,
+  id_modelo INT NOT NULL,
+  id_tiempo INT NOT NULL,
+  id_rango_etario INT NOT NULL,
+  id_ubicacion_sucursal INT NOT NULL,
+  cantidad INT NOT NULL
+);
+
 
 -- CLAVES PRIMARIAS
 ALTER TABLE GRANIZADO.BI_UBICACION ADD CONSTRAINT PK_BI_UBICACION PRIMARY KEY (id_ubicacion);
@@ -197,6 +215,9 @@ ALTER TABLE GRANIZADO.BI_HECHOS_FACTURACION ADD CONSTRAINT PK_BI_HECHOS_FACTURAC
 ALTER TABLE GRANIZADO.BI_HECHOS_ENVIOS ADD CONSTRAINT PK_BI_HECHOS_ENVIOS PRIMARY KEY (id_envio);
 ALTER TABLE GRANIZADO.BI_HECHOS_TIEMPO_FABRICACION ADD CONSTRAINT PK_BI_HECHOS_TIEMPO_FABRICACION PRIMARY KEY (id_fabricacion);
 ALTER TABLE GRANIZADO.Bi_HECHOS_GANANCIAS ADD CONSTRAINT PK_BI_HECHOS_GANANCIAS PRIMARY KEY (id_hecho_ganancia);
+ALTER TABLE GRANIZADO.BI_HECHOS_MODELO_FACTURADO ADD CONSTRAINT PK_BI_HECHOS_MODELO_FACTURADO PRIMARY KEY (id_modelo_facturado);-- nuevo
+
+
 -- CLAVES FORÁNEAS
 ALTER TABLE GRANIZADO.BI_HECHOS_COMPRAS ADD CONSTRAINT FK_BI_HECHOS_COMPRAS_id_tiempo FOREIGN KEY (id_tiempo) REFERENCES GRANIZADO.BI_TIEMPO(id_tiempo);
 ALTER TABLE GRANIZADO.BI_HECHOS_COMPRAS ADD CONSTRAINT FK_BI_HECHOS_COMPRAS_id_ubicacion FOREIGN KEY (id_ubicacion_sucursal) REFERENCES GRANIZADO.BI_UBICACION(id_ubicacion);
@@ -225,6 +246,11 @@ ALTER TABLE GRANIZADO.BI_HECHOS_TIEMPO_FABRICACION ADD CONSTRAINT FK_FABRICACION
 
 ALTER TABLE GRANIZADO.BI_HECHOS_GANANCIAS ADD CONSTRAINT FK_GANANCIAS_TIEMPO FOREIGN KEY (id_tiempo) REFERENCES GRANIZADO.BI_TIEMPO(id_tiempo);
 ALTER TABLE GRANIZADO.BI_HECHOS_GANANCIAS ADD CONSTRAINT FK_GANANCIAS_SUCURSAL FOREIGN KEY (id_sucursal) REFERENCES GRANIZADO.BI_SUCURSAL(id_sucursal);
+--nuevo
+ALTER TABLE GRANIZADO.BI_HECHOS_MODELO_FACTURADO ADD CONSTRAINT FK_BI_HECHOS_MODELO_FACTURADO_id_modelo FOREIGN KEY (id_modelo) REFERENCES GRANIZADO.BI_MODELO(id_modelo);
+ALTER TABLE GRANIZADO.BI_HECHOS_MODELO_FACTURADO ADD CONSTRAINT FK_BI_HECHOS_MODELO_FACTURADO_id_tiempo FOREIGN KEY (id_tiempo) REFERENCES GRANIZADO.BI_TIEMPO(id_tiempo);
+ALTER TABLE GRANIZADO.BI_HECHOS_MODELO_FACTURADO ADD CONSTRAINT FK_BI_HECHOS_MODELO_FACTURADO_id_rango_etario  FOREIGN KEY (id_rango_etario) REFERENCES GRANIZADO.BI_RANGO_ETARIO(id_rango_etario);
+ALTER TABLE GRANIZADO.BI_HECHOS_MODELO_FACTURADO ADD CONSTRAINT FK_BI_HECHOS_MODELO_FACTURADO_id_ubicacion_sucursal FOREIGN KEY (id_ubicacion_sucursal) REFERENCES GRANIZADO.BI_UBICACION(id_ubicacion);
 
 go
 
@@ -317,9 +343,9 @@ CREATE PROCEDURE GRANIZADO.MIGRAR_BI_RANGO_ETARIO
 as
 begin
    INSERT INTO GRANIZADO.BI_RANGO_ETARIO
-   VALUES (0,25),
-		(25, 35),
-		(35,50),
+   VALUES (0,24),
+		(25, 34),
+		(35,49),
 		(50, 150)
 end
 go
@@ -330,7 +356,7 @@ as
 begin
    INSERT INTO GRANIZADO.BI_TURNO
    VALUES ('8:00:00', '14:00:00'),
-		('14:00:00', '20:00:00')
+		('14:00:01', '20:00:00')
 end
 go
 
@@ -536,6 +562,36 @@ BEGIN
 END
 GO
 
+CREATE or alter PROCEDURE GRANIZADO.MIGRAR_BI_HECHOS_MODELO_FACTURADO
+AS
+BEGIN
+    INSERT INTO GRANIZADO.BI_HECHOS_MODELO_FACTURADO (
+        id_modelo, id_tiempo, id_rango_etario, id_ubicacion_sucursal, cantidad
+    )
+    SELECT
+	    M.mod_id,  -- modelo
+        T.id_tiempo,  -- tiempo (desde fecha factura)
+        RE.id_rango_etario,  -- rango etario del cliente
+        U.id_ubicacion,
+		DF.Detalle_Factura_Cantidad
+	from FACTURA F join DETALLE_FACTURA DF on F.Factura_Numero = DF.Factura_Numero
+	join DETALLE_PEDIDO DP on DP.Pedido_Numero = DF.Pedido_Numero and DP.Sillon_Codigo = DF.Sillon_Codigo
+	join SILLON s on s.Sillon_Codigo = DP.Sillon_Codigo
+	join MODELO m on s.Sillon_Modelo_Codigo = m.mod_id
+	join CLIENTE c on c.cli_id = F.cli_id
+	JOIN SUCURSAL SU ON SU.Sucursal_NroSucursal = F.Sucursal_NroSucursal
+	JOIN DIRECCION D ON D.direccion_id = SU.direccion_id
+	JOIN LOCALIDAD L ON L.localidad_id = D.localidad_id
+    JOIN PROVINCIA P ON P.provincia_id = L.provincia_id
+
+	JOIN GRANIZADO.BI_UBICACION U ON U.localidad = L.localidad_nombre AND U.provincia = P.prov_nombre
+    JOIN GRANIZADO.BI_TIEMPO T ON T.anio = YEAR(F.Factura_Fecha) AND T.mes = MONTH(F.Factura_Fecha)
+    JOIN GRANIZADO.BI_RANGO_ETARIO RE ON 
+        DATEDIFF(YEAR, C.Cliente_FechaNacimiento, F.Factura_Fecha) BETWEEN RE.rango_menor AND RE.rango_mayor
+    
+END
+GO
+
 EXEC GRANIZADO.MIGRAR_BI_TIEMPO;
 EXEC GRANIZADO.MIGRAR_BI_UBICACION;
 EXEC GRANIZADO.MIGRAR_BI_RANGO_ETARIO;
@@ -551,6 +607,7 @@ EXEC GRANIZADO.MIGRAR_BI_HECHOS_FACTURACION;
 EXEC GRANIZADO.MIGRAR_BI_HECHOS_ENVIOS;
 EXEC GRANIZADO.MIGRAR_BI_HECHOS_TIEMPO_FABRICACION;
 EXEC GRANIZADO.MIGRAR_BI_HECHOS_GANANCIAS;
+EXEC GRANIZADO.MIGRAR_BI_HECHOS_MODELO_FACTURADO;
 
 -- ME DA 171 COINCIDE CON 171
 
@@ -566,8 +623,6 @@ FROM GRANIZADO.BI_HECHOS_GANANCIAS G
 JOIN GRANIZADO.BI_TIEMPO T ON T.id_tiempo = G.id_tiempo
 JOIN GRANIZADO.BI_SUCURSAL S ON S.id_sucursal = G.id_sucursal;
 
-
-SELECT * FROM GRANIZADO.VW_GANANCIAS_MENSUALES
 
 
 --2) Factura promedio mensual. ME DA 35 COINCIDE
@@ -587,27 +642,41 @@ SELECT * FROM GRANIZADO.VW_FACTURA_PROM_CUATRIMESTRAL
 
 --3)Rendimiento de modelos. 
 
-CREATE or alter VIEW GRANIZADO.VW_TOP3_MODELOS_VENTAS AS
-SELECT *
-FROM (
-    SELECT 
-        t.anio,
-        t.cuatrimestre,
-        u.localidad,
-        re.id_rango_etario,
-        m.nombre_modelo,
-        SUM(p.cantidad) AS total_vendido,
-        RANK() OVER (PARTITION BY t.anio, t.cuatrimestre, u.localidad, re.id_rango_etario 
-                     ORDER BY SUM(p.cantidad) DESC) AS ranking
-    FROM GRANIZADO.BI_HECHOS_PEDIDOS p
-    JOIN GRANIZADO.BI_TIEMPO t ON p.id_tiempo = t.id_tiempo
-    JOIN GRANIZADO.BI_SUCURSAL s ON p.id_sucursal = s.id_sucursal
-    JOIN GRANIZADO.BI_UBICACION u ON s.id_ubicacion = u.id_ubicacion
-    JOIN GRANIZADO.BI_MODELO m ON p.id_modelo = m.id_modelo
-    JOIN GRANIZADO.BI_RANGO_ETARIO re ON p.id_rango_etario = re.id_rango_etario
-    GROUP BY t.anio, t.cuatrimestre, u.localidad, re.id_rango_etario, m.nombre_modelo
-) AS sub
-WHERE ranking <= 3;
+
+CREATE OR ALTER VIEW GRANIZADO.VW_TOP3_MODELOS_VENTAS AS
+SELECT 
+    m.nombre_modelo,
+    t.anio,
+    t.cuatrimestre,
+    u.localidad,
+    re.id_rango_etario,
+    SUM(hf.cantidad) AS total_vendido
+FROM GRANIZADO.BI_HECHOS_MODELO_FACTURADO hf
+JOIN GRANIZADO.BI_MODELO m ON m.id_modelo = hf.id_modelo
+JOIN GRANIZADO.BI_RANGO_ETARIO re ON re.id_rango_etario = hf.id_rango_etario
+JOIN GRANIZADO.BI_UBICACION u ON hf.id_ubicacion_sucursal = u.id_ubicacion
+JOIN GRANIZADO.BI_TIEMPO t ON t.id_tiempo = hf.id_tiempo
+WHERE m.id_modelo IN (
+    SELECT TOP 3 m2.id_modelo
+    FROM GRANIZADO.BI_HECHOS_MODELO_FACTURADO hf2
+    JOIN GRANIZADO.BI_MODELO m2 ON m2.id_modelo = hf2.id_modelo
+    JOIN GRANIZADO.BI_TIEMPO t2 ON t2.id_tiempo = hf2.id_tiempo
+    JOIN GRANIZADO.BI_UBICACION u2 ON u2.id_ubicacion = hf2.id_ubicacion_sucursal
+    JOIN GRANIZADO.BI_RANGO_ETARIO re2 ON re2.id_rango_etario = hf2.id_rango_etario
+    WHERE 
+        t2.anio = t.anio AND 
+        t2.cuatrimestre = t.cuatrimestre AND 
+        u2.localidad = u.localidad AND 
+        re2.id_rango_etario = re.id_rango_etario
+    GROUP BY m2.id_modelo
+    ORDER BY SUM(hf2.cantidad) DESC
+)
+GROUP BY 
+    m.nombre_modelo,
+    t.anio,
+    t.cuatrimestre,
+    u.localidad,
+    re.id_rango_etario;
 
 SELECT * FROM GRANIZADO.VW_TOP3_MODELOS_VENTAS
 
@@ -626,12 +695,6 @@ JOIN GRANIZADO.BI_SUCURSAL s ON p.id_sucursal = s.id_sucursal
 GROUP BY t.anio, t.mes, p.id_turno, s.id_sucursal;
 
 SELECT * FROM GRANIZADO.VW_VOLUMEN_PEDIDOS
-
-select * from GRANIZADO.BI_TURNO -- 2 (turno) * 9 (sucursales) * 19 (meses) = 342
-select * from GRANIZADO.BI_SUCURSAL
-select * from GRANIZADO.BI_TIEMPO
-select Pedido_Fecha from GRANIZADO.PEDIDO order by Pedido_Fecha
-
 
 
 --5)Conversión de pedidos.  ME DA 90 COINCIDE CON 90
@@ -721,19 +784,14 @@ SELECT * FROM GRANIZADO.VW_CUMPLIMIENTO_ENVIOS
 
 --10)Top 3 localidades con mayor costo de envío promedio ME DA 3 COINCIDE
 
-CREATE or alter VIEW GRANIZADO.VW_TOP3_COSTO_ENVIO_LOCALIDAD AS
-SELECT *
-FROM (
-    SELECT 
-        u.localidad,
-        AVG(e.costo_total_envio) AS costo_promedio,
-        RANK() OVER (ORDER BY AVG(e.costo_total_envio) DESC) AS ranking
+CREATE OR ALTER VIEW GRANIZADO.VW_TOP3_COSTO_ENVIO_LOCALIDAD AS
+SELECT TOP 3
+    u.localidad,
+    u.provincia,
+    AVG(e.costo_total_envio) AS costo_promedio
     FROM GRANIZADO.BI_HECHOS_ENVIOS e
     JOIN GRANIZADO.BI_UBICACION u ON e.id_ubicacion_cliente = u.id_ubicacion
-    GROUP BY u.localidad
-) AS sub
-WHERE ranking <= 3;
+    GROUP BY u.localidad, u.provincia
+    ORDER BY AVG(e.costo_total_envio) DESC;
 
 SELECT * FROM GRANIZADO.VW_TOP3_COSTO_ENVIO_LOCALIDAD
-
-
