@@ -1,4 +1,5 @@
 
+
 IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_BI_HECHOS_COMPRAS_id_tiempo')
     ALTER TABLE GRANIZADO.BI_HECHOS_COMPRAS DROP CONSTRAINT FK_BI_HECHOS_COMPRAS_id_tiempo;
 IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_BI_HECHOS_COMPRAS_id_ubicacion')
@@ -347,31 +348,43 @@ END
 GO
 
 -- INSERT HECHOS
-
-CREATE PROCEDURE GRANIZADO.MIGRAR_BI_HECHOS_COMPRAS
+CREATE OR ALTER PROCEDURE GRANIZADO.MIGRAR_BI_HECHOS_COMPRAS
 AS
 BEGIN
-    INSERT INTO GRANIZADO.BI_HECHOS_COMPRAS (id_tiempo, id_ubicacion_sucursal, id_sucursal, id_tipo_material, monto_total)
+    INSERT INTO GRANIZADO.BI_HECHOS_COMPRAS (
+        id_tiempo, 
+        id_ubicacion_sucursal, 
+        id_sucursal, 
+        id_tipo_material, 
+        monto_total
+    )
     SELECT 
         T.id_tiempo,
         U.id_ubicacion,
         S.id_sucursal,
         TM.id_tipo_material,
-        C.Compra_Total
-    FROM GRANIZADO.COMPRA C
+        SUM(DC.Detalle_Compra_SubTotal) AS monto_total
+    FROM GRANIZADO.DETALLE_COMPRA DC
+    JOIN GRANIZADO.COMPRA C ON C.compra_id = DC.compra_id
     JOIN GRANIZADO.SUCURSAL SU ON SU.Sucursal_NroSucursal = C.Sucursal_NroSucursal
     JOIN GRANIZADO.DIRECCION DIR ON DIR.direccion_id = SU.direccion_id
     JOIN GRANIZADO.LOCALIDAD L ON L.localidad_id = DIR.localidad_id
     JOIN GRANIZADO.PROVINCIA P ON P.provincia_id = L.provincia_id
     JOIN GRANIZADO.BI_UBICACION U ON U.localidad = L.localidad_nombre AND U.provincia = P.prov_nombre
     JOIN GRANIZADO.BI_SUCURSAL S ON S.nro_sucursal = SU.Sucursal_NroSucursal
-    JOIN GRANIZADO.DETALLE_COMPRA DC ON DC.compra_id = C.compra_id
     JOIN GRANIZADO.MATERIAL M ON M.mat_id = DC.mat_id
     JOIN GRANIZADO.TIPO_MATERIAL TMAT ON TMAT.tipo_material_id = M.tipo_material_id
     JOIN GRANIZADO.BI_TIPO_MATERIAL TM ON TM.tipo = TMAT.tipo_nombre
     JOIN GRANIZADO.BI_TIEMPO T ON T.anio = YEAR(C.Compra_Fecha) AND T.mes = MONTH(C.Compra_Fecha)
+    GROUP BY 
+        T.id_tiempo,
+        U.id_ubicacion,
+        S.id_sucursal,
+        TM.id_tipo_material
 END
 GO
+
+--SELECT * FROM GRANIZADO.BI_HECHOS_COMPRAS ORDER BY monto_total
 
 CREATE PROCEDURE GRANIZADO.MIGRAR_BI_HECHOS_PEDIDOS
 AS
@@ -631,7 +644,6 @@ JOIN GRANIZADO.BI_SUCURSAL s ON c.id_sucursal = s.id_sucursal
 GROUP BY t.anio, t.cuatrimestre, s.id_sucursal, m.tipo;
 
 
-SELECT * FROM GRANIZADO.VW_COMPRAS_POR_MATERIAL
 
 --9)Porcentaje de cumplimiento de envíos por mes CHEQUEAR PORCENTAJES ME DA 19 CUMPLE
 
