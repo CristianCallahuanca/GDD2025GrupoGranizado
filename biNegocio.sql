@@ -186,3 +186,60 @@ ALTER TABLE GRANIZADO.BI_HECHOS_FACTURACION ADD CONSTRAINT FK_BI_HECHOS_FACTURAC
 ALTER TABLE GRANIZADO.BI_HECHOS_ENVIOS ADD CONSTRAINT FK_BI_HECHOS_ENVIOS_id_tiempo FOREIGN KEY (id_tiempo) REFERENCES GRANIZADO.BI_TIEMPO(id_tiempo);
 ALTER TABLE GRANIZADO.BI_HECHOS_ENVIOS ADD CONSTRAINT FK_BI_HECHOS_ENVIOS_id_rango_etario FOREIGN KEY (id_rango_etario) REFERENCES GRANIZADO.BI_RANGO_ETARIO(id_rango_etario);
 ALTER TABLE GRANIZADO.BI_HECHOS_ENVIOS ADD CONSTRAINT FK_BI_HECHOS_ENVIOS_id_ubicacion_cliente FOREIGN KEY (id_ubicacion_cliente) REFERENCES GRANIZADO.BI_UBICACION(id_ubicacion);
+
+
+
+--tienen fecha: factura,envio,pedido,compra
+INSERT INTO GRANIZADO.BI_TIEMPO(ANIO, MES, CUATRIMESTRE)
+    SELECT DISTINCT
+        YEAR(FACTURA.Factura_Fecha),
+        MONTH(FACTURA.Factura_Fecha),
+        CASE
+            WHEN MONTH(FACTURA.Factura_Fecha) <= 4 THEN '1'
+            WHEN MONTH(FACTURA.Factura_Fecha) <= 8 THEN '2'
+            WHEN MONTH(FACTURA.Factura_Fecha) <= 12 THEN '3'
+        END 
+        FROM GRANIZADO.FACTURA
+
+INSERT INTO GRANIZADO.BI_UBICACION (localidad,provincia)
+SELECT l.localidad_nombre,p.prov_nombre from GRANIZADO.LOCALIDAD l join GRANIZADO.PROVINCIA p
+on l.provincia_id = p.provincia_id
+--revisar porque la pk empieza muy arriba (igual anda)
+
+INSERT INTO GRANIZADO.BI_RANGO_ETARIO
+VALUES (0,25),
+        (25, 35),
+        (35,50),
+        (50, 150)
+
+INSERT INTO GRANIZADO.BI_TURNO
+VALUES ('8:00:00', '14:00:00'),
+        ('14:00:00', '20:00:00')
+
+INSERT INTO GRANIZADO.BI_TIPO_MATERIAL
+select tipo_nombre from GRANIZADO.TIPO_MATERIAL
+
+
+CREATE PROCEDURE GRANIZADO.MIGRAR_BI_ESTADO_PEDIDO
+AS
+BEGIN
+    INSERT INTO GRANIZADO.BI_ESTADO_PEDIDO (id_estado_pedido, descripcion_estado)
+    SELECT 
+        ROW_NUMBER() OVER (ORDER BY descripcion_estado) AS id_estado_pedido,
+        descripcion_estado
+    FROM (
+        SELECT DISTINCT Pedido_Estado AS descripcion_estado
+        FROM GRANIZADO.PEDIDO
+        WHERE Pedido_Estado IS NOT NULL
+    ) AS estados
+END
+GO
+
+
+CREATE PROCEDURE GRANIZADO.MIGRAR_BI_MODELO
+AS
+BEGIN
+    INSERT INTO GRANIZADO.BI_MODELO (id_modelo, nombre_modelo)
+    SELECT mod_id, nombre_modelo FROM GRANIZADO.MODELO
+END
+GO
