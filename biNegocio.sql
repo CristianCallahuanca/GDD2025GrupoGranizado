@@ -1,5 +1,4 @@
 
-
 IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_BI_HECHOS_COMPRAS_id_tiempo')
     ALTER TABLE GRANIZADO.BI_HECHOS_COMPRAS DROP CONSTRAINT FK_BI_HECHOS_COMPRAS_id_tiempo;
 IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_BI_HECHOS_COMPRAS_id_ubicacion')
@@ -617,16 +616,23 @@ SELECT * FROM GRANIZADO.VW_TIEMPO_PROM_FABRICACION
 
 --7)Promedio de Compras ME DA 19 COINCIDE
 
-CREATE or alter VIEW GRANIZADO.VW_PROMEDIO_COMPRAS_MENSUAL AS
+CREATE OR ALTER VIEW GRANIZADO.VW_PROMEDIO_COMPRAS_MENSUAL AS
 SELECT 
     t.anio,
     t.mes,
-    AVG(c.monto_total) AS promedio_compras
-FROM GRANIZADO.BI_HECHOS_COMPRAS c
-JOIN GRANIZADO.BI_TIEMPO t ON c.id_tiempo = t.id_tiempo
+    AVG(compra_por_mes.total_compra) AS promedio_compras
+FROM (
+    SELECT 
+        c.id_tiempo,
+        SUM(c.monto_total) AS total_compra
+    FROM GRANIZADO.BI_HECHOS_COMPRAS c
+    GROUP BY c.id_tiempo
+) compra_por_mes
+JOIN GRANIZADO.BI_TIEMPO t ON t.id_tiempo = compra_por_mes.id_tiempo
 GROUP BY t.anio, t.mes;
 
-SELECT * FROM GRANIZADO.VW_PROMEDIO_COMPRAS_MENSUAL
+
+SELECT * FROM GRANIZADO.VW_PROMEDIO_COMPRAS_MENSUAL ORDER BY promedio_compras
 
 --8)Compras por tipo de material, sucursal y cuatrimestre  ---- ME DA 114 
 
@@ -643,7 +649,7 @@ JOIN GRANIZADO.BI_TIPO_MATERIAL m ON c.id_tipo_material = m.id_tipo_material
 JOIN GRANIZADO.BI_SUCURSAL s ON c.id_sucursal = s.id_sucursal
 GROUP BY t.anio, t.cuatrimestre, s.id_sucursal, m.tipo;
 
-
+SELECT * FROM GRANIZADO.VW_COMPRAS_POR_MATERIAL ORDER BY total_compras
 
 --9)Porcentaje de cumplimiento de envíos por mes CHEQUEAR PORCENTAJES ME DA 19 CUMPLE
 
@@ -655,6 +661,8 @@ SELECT
 FROM GRANIZADO.BI_HECHOS_ENVIOS e
 JOIN GRANIZADO.BI_TIEMPO t ON e.id_tiempo = t.id_tiempo
 GROUP BY t.anio, t.mes;
+
+SELECT * FROM GRANIZADO.VW_CUMPLIMIENTO_ENVIOS
 
 --10)Top 3 localidades con mayor costo de envío promedio ME DA 3 COINCIDE
 
