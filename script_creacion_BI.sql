@@ -252,6 +252,10 @@ IF OBJECT_ID('GRANIZADO.MIGRAR_BI_HECHOS_ENVIOS', 'P') IS NOT NULL
     DROP PROCEDURE GRANIZADO.MIGRAR_BI_HECHOS_ENVIOS;
 GO
 
+IF OBJECT_ID('GRANIZADO.MIGRAR_BI_HECHOS_COMPRAS', 'P') IS NOT NULL
+    DROP PROCEDURE GRANIZADO.MIGRAR_BI_HECHOS_COMPRAS;
+GO
+
 
 CREATE PROCEDURE GRANIZADO.MIGRAR_BI_TIEMPO
 as
@@ -335,6 +339,42 @@ END
 GO
 
 -- INSERT HECHOS
+CREATE PROCEDURE GRANIZADO.MIGRAR_BI_HECHOS_COMPRAS
+AS
+BEGIN
+    INSERT INTO GRANIZADO.BI_HECHOS_COMPRAS (
+        id_tiempo, 
+        id_ubicacion_sucursal, 
+        id_sucursal, 
+        id_tipo_material, 
+        monto_total
+    )
+    SELECT 
+        T.id_tiempo,
+        U.id_ubicacion,
+        S.id_sucursal,
+        TM.id_tipo_material,
+        SUM(DC.Detalle_Compra_SubTotal) AS monto_total
+    FROM GRANIZADO.DETALLE_COMPRA DC
+    JOIN GRANIZADO.COMPRA C ON C.compra_id = DC.compra_id
+    JOIN GRANIZADO.SUCURSAL SU ON SU.Sucursal_NroSucursal = C.Sucursal_NroSucursal
+    JOIN GRANIZADO.DIRECCION DIR ON DIR.direccion_id = SU.direccion_id
+    JOIN GRANIZADO.LOCALIDAD L ON L.localidad_id = DIR.localidad_id
+    JOIN GRANIZADO.PROVINCIA P ON P.provincia_id = L.provincia_id
+    JOIN GRANIZADO.BI_UBICACION U ON U.localidad = L.localidad_nombre AND U.provincia = P.prov_nombre
+    JOIN GRANIZADO.BI_SUCURSAL S ON S.nro_sucursal = SU.Sucursal_NroSucursal
+    JOIN GRANIZADO.MATERIAL M ON M.mat_id = DC.mat_id
+    JOIN GRANIZADO.TIPO_MATERIAL TMAT ON TMAT.tipo_material_id = M.tipo_material_id
+    JOIN GRANIZADO.BI_TIPO_MATERIAL TM ON TM.tipo = TMAT.tipo_nombre
+    JOIN GRANIZADO.BI_TIEMPO T ON T.anio = YEAR(C.Compra_Fecha) AND T.mes = MONTH(C.Compra_Fecha)
+    GROUP BY 
+        T.id_tiempo,
+        U.id_ubicacion,
+        S.id_sucursal,
+        TM.id_tipo_material
+END
+GO
+
 CREATE PROCEDURE GRANIZADO.MIGRAR_BI_HECHOS_PEDIDOS
 AS
 BEGIN
@@ -506,13 +546,16 @@ EXEC GRANIZADO.MIGRAR_BI_MODELO;
 EXEC GRANIZADO.MIGRAR_BI_PEDIDO;
 EXEC GRANIZADO.MIGRAR_BI_SUCURSAL;
 
+EXEC GRANIZADO.MIGRAR_BI_HECHOS_COMPRAS;
 EXEC GRANIZADO.MIGRAR_BI_HECHOS_PEDIDOS;
 EXEC GRANIZADO.MIGRAR_BI_HECHOS_FACTURACION;
 EXEC GRANIZADO.MIGRAR_BI_HECHOS_ENVIOS;
+
 GO
 
 --1) ganancias
 
+-- VISTA VIEJA 
 -- CREATE VIEW GRANIZADO.VW_GANANCIAS_MENSUALES AS
 -- SELECT 
 --     T.anio,
@@ -524,6 +567,24 @@ GO
 -- FROM GRANIZADO.BI_HECHOS_GANANCIAS G
 -- JOIN GRANIZADO.BI_TIEMPO T ON T.id_tiempo = G.id_tiempo
 -- JOIN GRANIZADO.BI_SUCURSAL S ON S.id_sucursal = G.id_sucursal;
+-- GO
+
+
+-- VISTA MODIFICADA. REVISAR QUE HAY ALGO ESTA FALTANDO
+
+-- CREATE VIEW GRANIZADO.VW_GANANCIAS_MENSUALES AS
+-- SELECT 
+--     T.anio,
+--     T.mes,
+--     S.id_sucursal,
+--     HF.monto_total as 'Monto facturado',
+--     HC.monto_total as 'Monto comprado',
+--     HF.monto_total - HC.monto_total AS ganancia
+-- FROM GRANIZADO.BI_HECHOS_FACTURACION HF
+-- JOIN GRANIZADO.BI_HECHOS_COMPRAS HC ON HF.id_sucursal = HC.id_sucursal
+-- JOIN GRANIZADO.BI_TIEMPO T ON T.id_tiempo = HF.id_tiempo
+-- JOIN GRANIZADO.BI_SUCURSAL S ON S.id_sucursal = HF.id_sucursal
+-- group by S.id_sucursal, T.anio, T.mes, HF.monto_total, HC.monto_total
 -- GO
 
 --2) Factura promedio mensual.
@@ -683,3 +744,6 @@ SELECT TOP 3
     JOIN GRANIZADO.BI_UBICACION u ON e.id_ubicacion_cliente = u.id_ubicacion
     GROUP BY u.localidad, u.provincia
     ORDER BY AVG(e.costo_total_envio) DESC;
+
+
+
