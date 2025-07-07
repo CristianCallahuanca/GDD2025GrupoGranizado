@@ -554,39 +554,21 @@ EXEC GRANIZADO.MIGRAR_BI_HECHOS_ENVIOS;
 
 GO
 
---1) ganancias
-
--- VISTA VIEJA 
--- CREATE VIEW GRANIZADO.VW_GANANCIAS_MENSUALES AS
--- SELECT 
---     T.anio,
---     T.mes,
---     S.id_sucursal,
---     G.monto_facturado,
---     G.monto_comprado,
---     G.monto_facturado - G.monto_comprado AS ganancia
--- FROM GRANIZADO.BI_HECHOS_GANANCIAS G
--- JOIN GRANIZADO.BI_TIEMPO T ON T.id_tiempo = G.id_tiempo
--- JOIN GRANIZADO.BI_SUCURSAL S ON S.id_sucursal = G.id_sucursal;
--- GO
-
--- VISTA MODIFICADA. REVISAR QUE HAY ALGO ESTA FALTANDO
-
+--1) ganancias. Funcionando
 
  CREATE VIEW GRANIZADO.VW_GANANCIAS_MENSUALES AS
  SELECT 
      T.anio,
      T.mes,
-     S.id_sucursal,
+     S.nro_sucursal,
      SUM(HF.monto_total - HC.monto_total) AS ganancia
  FROM GRANIZADO.BI_HECHOS_FACTURACION HF
  JOIN GRANIZADO.BI_HECHOS_COMPRAS HC ON HF.id_sucursal = HC.id_sucursal
  JOIN GRANIZADO.BI_TIEMPO T ON T.id_tiempo = HF.id_tiempo
  JOIN GRANIZADO.BI_SUCURSAL S ON S.id_sucursal = HF.id_sucursal
- group by S.id_sucursal, T.anio, T.mes
- order by ganancia desc
-
+ group by S.nro_sucursal, T.anio, T.mes
 GO
+
 
 --2) Factura promedio mensual.
 
@@ -602,43 +584,42 @@ JOIN GRANIZADO.BI_UBICACION u ON f.id_ubicacion_sucursal = u.id_ubicacion
 GROUP BY t.anio, t.cuatrimestre, u.provincia;
 GO
 
---3)Rendimiento de modelos. 
+--3)Rendimiento de modelos. Funcionando
 
--- CREATE VIEW GRANIZADO.VW_TOP3_MODELOS_VENTAS AS
--- SELECT 
---     m.nombre_modelo,
---     t.anio,
---     t.cuatrimestre,
---     u.localidad,
---     re.id_rango_etario,
---     SUM(hf.cantidad) AS total_vendido
--- FROM GRANIZADO.BI_HECHOS_MODELO_FACTURADO hf
--- JOIN GRANIZADO.BI_MODELO m ON m.id_modelo = hf.id_modelo
--- JOIN GRANIZADO.BI_RANGO_ETARIO re ON re.id_rango_etario = hf.id_rango_etario
--- JOIN GRANIZADO.BI_UBICACION u ON hf.id_ubicacion_sucursal = u.id_ubicacion
--- JOIN GRANIZADO.BI_TIEMPO t ON t.id_tiempo = hf.id_tiempo
--- WHERE m.id_modelo IN (
---     SELECT TOP 3 m2.id_modelo
---     FROM GRANIZADO.BI_HECHOS_MODELO_FACTURADO hf2
---     JOIN GRANIZADO.BI_MODELO m2 ON m2.id_modelo = hf2.id_modelo
---     JOIN GRANIZADO.BI_TIEMPO t2 ON t2.id_tiempo = hf2.id_tiempo
---     JOIN GRANIZADO.BI_UBICACION u2 ON u2.id_ubicacion = hf2.id_ubicacion_sucursal
---     JOIN GRANIZADO.BI_RANGO_ETARIO re2 ON re2.id_rango_etario = hf2.id_rango_etario
---     WHERE 
---         t2.anio = t.anio AND 
---         t2.cuatrimestre = t.cuatrimestre AND 
---         u2.localidad = u.localidad AND 
---         re2.id_rango_etario = re.id_rango_etario
---     GROUP BY m2.id_modelo
---     ORDER BY SUM(hf2.cantidad) DESC
--- )
--- GROUP BY 
---     m.nombre_modelo,
---     t.anio,
---     t.cuatrimestre,
---     u.localidad,
---     re.id_rango_etario;
--- GO
+CREATE VIEW GRANIZADO.VW_TOP3_MODELOS_VENTAS AS
+SELECT 
+    sub.anio,
+    sub.cuatrimestre,
+    sub.localidad,
+    sub.id_rango_etario,
+    sub.nombre_modelo,
+    sub.total_vendido
+FROM (
+    SELECT 
+        t.anio,
+        t.cuatrimestre,
+        u.localidad,
+        re.id_rango_etario,
+        m.nombre_modelo,
+        SUM(hf.cantidad_ventas) AS total_vendido,
+        ROW_NUMBER() OVER (
+            PARTITION BY t.anio, t.cuatrimestre, u.localidad, re.id_rango_etario
+            ORDER BY SUM(hf.cantidad_ventas) DESC
+        ) AS Posicion
+    FROM GRANIZADO.BI_HECHOS_FACTURACION hf
+    JOIN GRANIZADO.BI_RANGO_ETARIO re ON re.id_rango_etario = hf.id_rango_etario
+    JOIN GRANIZADO.BI_UBICACION u ON hf.id_ubicacion_sucursal = u.id_ubicacion
+    JOIN GRANIZADO.BI_TIEMPO t ON t.id_tiempo = hf.id_tiempo
+    JOIN GRANIZADO.BI_MODELO m ON m.id_modelo = hf.id_modelo
+    GROUP BY 
+        t.anio,
+        t.cuatrimestre,
+        u.localidad,
+        re.id_rango_etario,
+        m.nombre_modelo
+) AS sub
+WHERE sub.Posicion <= 3
+go
 
 --4)Volumen de pedidos. ME DA 342 COINCIDE
 
@@ -646,8 +627,8 @@ CREATE VIEW GRANIZADO.VW_VOLUMEN_PEDIDOS AS
 SELECT 
     t.anio,
     t.mes,
-    p.id_turno,
     s.id_sucursal,
+    p.id_turno,
     COUNT(*) AS cantidad_pedidos
 FROM GRANIZADO.BI_HECHOS_PEDIDOS p
 JOIN GRANIZADO.BI_TIEMPO t ON p.id_tiempo = t.id_tiempo
