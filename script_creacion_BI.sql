@@ -1,3 +1,4 @@
+
 IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_BI_HECHOS_COMPRAS_id_tiempo')
     ALTER TABLE GRANIZADO.BI_HECHOS_COMPRAS DROP CONSTRAINT FK_BI_HECHOS_COMPRAS_id_tiempo;
 IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_BI_HECHOS_COMPRAS_id_ubicacion')
@@ -569,23 +570,23 @@ GO
 -- JOIN GRANIZADO.BI_SUCURSAL S ON S.id_sucursal = G.id_sucursal;
 -- GO
 
-
 -- VISTA MODIFICADA. REVISAR QUE HAY ALGO ESTA FALTANDO
 
--- CREATE VIEW GRANIZADO.VW_GANANCIAS_MENSUALES AS
--- SELECT 
---     T.anio,
---     T.mes,
---     S.id_sucursal,
---     HF.monto_total as 'Monto facturado',
---     HC.monto_total as 'Monto comprado',
---     HF.monto_total - HC.monto_total AS ganancia
--- FROM GRANIZADO.BI_HECHOS_FACTURACION HF
--- JOIN GRANIZADO.BI_HECHOS_COMPRAS HC ON HF.id_sucursal = HC.id_sucursal
--- JOIN GRANIZADO.BI_TIEMPO T ON T.id_tiempo = HF.id_tiempo
--- JOIN GRANIZADO.BI_SUCURSAL S ON S.id_sucursal = HF.id_sucursal
--- group by S.id_sucursal, T.anio, T.mes, HF.monto_total, HC.monto_total
--- GO
+
+ CREATE VIEW GRANIZADO.VW_GANANCIAS_MENSUALES AS
+ SELECT 
+     T.anio,
+     T.mes,
+     S.id_sucursal,
+     SUM(HF.monto_total - HC.monto_total) AS ganancia
+ FROM GRANIZADO.BI_HECHOS_FACTURACION HF
+ JOIN GRANIZADO.BI_HECHOS_COMPRAS HC ON HF.id_sucursal = HC.id_sucursal
+ JOIN GRANIZADO.BI_TIEMPO T ON T.id_tiempo = HF.id_tiempo
+ JOIN GRANIZADO.BI_SUCURSAL S ON S.id_sucursal = HF.id_sucursal
+ group by S.id_sucursal, T.anio, T.mes
+ order by ganancia desc
+
+GO
 
 --2) Factura promedio mensual.
 
@@ -744,6 +745,3 @@ SELECT TOP 3
     JOIN GRANIZADO.BI_UBICACION u ON e.id_ubicacion_cliente = u.id_ubicacion
     GROUP BY u.localidad, u.provincia
     ORDER BY AVG(e.costo_total_envio) DESC;
-
-
-
