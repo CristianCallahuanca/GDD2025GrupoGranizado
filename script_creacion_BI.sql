@@ -338,14 +338,12 @@ AS
 BEGIN
     INSERT INTO GRANIZADO.BI_HECHOS_COMPRAS (
         id_tiempo, 
-        id_ubicacion_sucursal, 
         id_sucursal, 
         id_tipo_material, 
         monto_total
     )
     SELECT 
-        T.id_tiempo,
-        U.id_ubicacion,
+        T.id_tiempo,        
         S.id_sucursal,
         TM.id_tipo_material,
         SUM(DC.Detalle_Compra_SubTotal) AS monto_total
@@ -355,7 +353,6 @@ BEGIN
     JOIN GRANIZADO.DIRECCION DIR ON DIR.direccion_id = SU.direccion_id
     JOIN GRANIZADO.LOCALIDAD L ON L.localidad_id = DIR.localidad_id
     JOIN GRANIZADO.PROVINCIA P ON P.provincia_id = L.provincia_id
-    JOIN GRANIZADO.BI_UBICACION U ON U.localidad = L.localidad_nombre AND U.provincia = P.prov_nombre
     JOIN GRANIZADO.BI_SUCURSAL S ON S.nro_sucursal = SU.Sucursal_NroSucursal
     JOIN GRANIZADO.MATERIAL M ON M.mat_id = DC.mat_id
     JOIN GRANIZADO.TIPO_MATERIAL TMAT ON TMAT.tipo_material_id = M.tipo_material_id
@@ -363,7 +360,6 @@ BEGIN
     JOIN GRANIZADO.BI_TIEMPO T ON T.anio = YEAR(C.Compra_Fecha) AND T.mes = MONTH(C.Compra_Fecha)
     GROUP BY 
         T.id_tiempo,
-        U.id_ubicacion,
         S.id_sucursal,
         TM.id_tipo_material
 END
@@ -511,10 +507,9 @@ GO
 CREATE PROCEDURE GRANIZADO.MIGRAR_BI_HECHOS_ENVIOS
 AS
 BEGIN
-    INSERT INTO GRANIZADO.BI_HECHOS_ENVIOS (id_tiempo, id_rango_etario, id_ubicacion_cliente, cumplido, costo_total_envio)
+    INSERT INTO GRANIZADO.BI_HECHOS_ENVIOS (id_tiempo, id_ubicacion_cliente, cumplido, costo_total_envio)
     SELECT 
         T.id_tiempo,
-        RE.id_rango_etario,
         U.id_ubicacion,
         CASE WHEN  E.Envio_Fecha <= E.Envio_Fecha_Programada THEN 1 ELSE 0 END,
         E.Envio_Total
@@ -526,8 +521,6 @@ BEGIN
     JOIN GRANIZADO.PROVINCIA P ON P.provincia_id = L.provincia_id
     JOIN GRANIZADO.BI_UBICACION U ON U.localidad = L.localidad_nombre AND U.provincia = P.prov_nombre
     JOIN GRANIZADO.BI_TIEMPO T ON T.anio = YEAR(E.Envio_Fecha_Programada) AND T.mes = MONTH(E.Envio_Fecha_Programada)
-    JOIN GRANIZADO.BI_RANGO_ETARIO RE ON 
-        DATEDIFF(YEAR, C.Cliente_FechaNacimiento, E.Envio_Fecha_Programada) BETWEEN RE.rango_menor AND RE.rango_mayor
 END
 GO
 
@@ -656,7 +649,6 @@ GO
  JOIN GRANIZADO.BI_TIEMPO t ON tf.id_tiempo = t.id_tiempo
  JOIN GRANIZADO.BI_SUCURSAL s ON tf.id_sucursal = s.id_sucursal
  GROUP BY t.anio, t.cuatrimestre, s.nro_sucursal
- ORDER BY dias_promedio desc
  GO
 
 
