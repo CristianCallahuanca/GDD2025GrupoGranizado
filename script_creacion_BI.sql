@@ -692,18 +692,11 @@ CREATE VIEW GRANIZADO.VW_PROMEDIO_COMPRAS_MENSUAL AS
 SELECT 
     t.anio,
     t.mes,
-    AVG(compra_por_mes.total_compra) AS promedio_compras
-FROM (
-    SELECT 
-        c.id_tiempo,
-        SUM(c.monto_total) AS total_compra
-    FROM GRANIZADO.BI_HECHOS_COMPRAS c
-    GROUP BY c.id_tiempo
-) compra_por_mes
-JOIN GRANIZADO.BI_TIEMPO t ON t.id_tiempo = compra_por_mes.id_tiempo
+    AVG(c.monto_total) AS promedio_compra
+FROM GRANIZADO.BI_HECHOS_COMPRAS c
+JOIN GRANIZADO.BI_TIEMPO t ON t.id_tiempo = c.id_tiempo
 GROUP BY t.anio, t.mes;
 GO
-
 
 --8)Compras por tipo de material, sucursal y cuatrimestre  
 
