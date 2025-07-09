@@ -442,6 +442,7 @@ BEGIN
 END
 GO*/
 
+
 CREATE PROCEDURE GRANIZADO.MIGRAR_BI_HECHOS_FACTURACION
 AS
 BEGIN
@@ -454,7 +455,8 @@ BEGIN
         JOIN GRANIZADO.DETALLE_FACTURA df ON df.Factura_Numero = f.Factura_Numero
         JOIN GRANIZADO.DETALLE_PEDIDO dp ON dp.Pedido_Numero = df.Pedido_Numero AND dp.Sillon_Codigo = df.Sillon_Codigo
         JOIN GRANIZADO.PEDIDO p ON p.Pedido_Numero = dp.Pedido_Numero
-        GROUP BY f.Factura_Numero
+        --where p.Pedido_Numero = df.Pedido_Numero
+		group by f.Factura_Numero
     ),
     HorasPorFactura AS (
         SELECT
@@ -481,7 +483,7 @@ BEGIN
         mo.id_modelo,
         SUM(df.Detalle_Factura_SubTotal),
         COUNT(DISTINCT f.Factura_Numero),
-        SUM(hf.HorasFabricacion)
+        AVG(hf.HorasFabricacion)
     FROM GRANIZADO.FACTURA f
     JOIN HorasPorFactura hf ON hf.Factura_Numero = f.Factura_Numero
     JOIN GRANIZADO.DETALLE_FACTURA df ON df.Factura_Numero = f.Factura_Numero
@@ -575,8 +577,6 @@ SELECT
     V.anio,
     V.mes,
     V.id_sucursal,
-    ISNULL(V.total_ingresos, 0) AS total_ingresos,
-    ISNULL(C.total_egresos, 0) AS total_egresos,
     ISNULL(V.total_ingresos, 0) - ISNULL(C.total_egresos, 0) AS ganancia
 FROM Ventas V
 LEFT JOIN Compras C 
@@ -591,7 +591,6 @@ SELECT
     t.cuatrimestre,
     u.provincia,
     SUM(f.cantidad_ventas) AS cantidad_facturas,
-    SUM(f.monto_total) AS total_facturado,
     CASE 
         WHEN SUM(f.cantidad_ventas) = 0 THEN 0
         ELSE SUM(f.monto_total) * 1.0 / SUM(f.cantidad_ventas)
@@ -602,6 +601,7 @@ JOIN GRANIZADO.BI_UBICACION u ON f.id_ubicacion_sucursal = u.id_ubicacion
 GROUP BY t.anio, t.cuatrimestre, u.provincia;
 GO
 
+
 --3)Rendimiento de modelos. Funcionando
 
 CREATE VIEW GRANIZADO.VW_TOP3_MODELOS_VENTAS AS
@@ -611,7 +611,7 @@ SELECT
     sub.localidad,
     sub.id_rango_etario,
     sub.nombre_modelo,
-    sub.total_vendido
+    sub.total_vendido 
 FROM (
     SELECT 
         t.anio,
@@ -645,13 +645,13 @@ CREATE VIEW GRANIZADO.VW_VOLUMEN_PEDIDOS AS
 SELECT 
     t.anio,
     t.mes,
-    s.id_sucursal,
+    s.nro_sucursal,
     p.id_turno,
     COUNT(*) AS cantidad_pedidos
 FROM GRANIZADO.BI_HECHOS_PEDIDOS p
 JOIN GRANIZADO.BI_TIEMPO t ON p.id_tiempo = t.id_tiempo
 JOIN GRANIZADO.BI_SUCURSAL s ON p.id_sucursal = s.id_sucursal
-GROUP BY t.anio, t.mes, p.id_turno, s.id_sucursal;
+GROUP BY t.anio, t.mes, p.id_turno, s.nro_sucursal;
 GO
 
 --5)Conversión de pedidos.  ME DA 90 COINCIDE CON 90
@@ -660,14 +660,14 @@ CREATE VIEW GRANIZADO.VW_CONVERSION_PEDIDOS AS
 SELECT 
     t.cuatrimestre,
     t.anio,
-    s.id_sucursal,
+    s.nro_sucursal,
     e.descripcion_estado,
-    COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (PARTITION BY t.anio, t.cuatrimestre, s.id_sucursal) AS porcentaje
+    COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (PARTITION BY t.anio, t.cuatrimestre, s.nro_sucursal) AS porcentaje
 FROM GRANIZADO.BI_HECHOS_PEDIDOS p
 JOIN GRANIZADO.BI_TIEMPO t ON p.id_tiempo = t.id_tiempo
 JOIN GRANIZADO.BI_ESTADO_PEDIDO e ON p.id_estado_pedido = e.id_estado_pedido
 JOIN GRANIZADO.BI_SUCURSAL s ON p.id_sucursal = s.id_sucursal
-GROUP BY t.anio, t.cuatrimestre, s.id_sucursal, e.descripcion_estado;
+GROUP BY t.anio, t.cuatrimestre, s.nro_sucursal, e.descripcion_estado;
 GO
 
 --6)Tiempo promedio de fabricación: 
@@ -677,13 +677,12 @@ GO
      t.cuatrimestre,
      t.anio,
      s.nro_sucursal,
-     CAST(AVG(1.0 * tf.tiempo_fabricacion_horas) AS DECIMAL(18,2)) AS dias_promedio
+     CAST(AVG(1.0 * tf.tiempo_fabricacion_horas) AS DECIMAL(18,2)) AS horas_promedio
  FROM GRANIZADO.BI_HECHOS_FACTURACION tf
  JOIN GRANIZADO.BI_TIEMPO t ON tf.id_tiempo = t.id_tiempo
  JOIN GRANIZADO.BI_SUCURSAL s ON tf.id_sucursal = s.id_sucursal
  GROUP BY t.anio, t.cuatrimestre, s.nro_sucursal
  GO
-
 
 
 --7)Promedio de Compras ME DA 19 COINCIDE
