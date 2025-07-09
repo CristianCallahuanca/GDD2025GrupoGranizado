@@ -542,17 +542,39 @@ GO
 
 --1) ganancias. Funcionando
 
- CREATE VIEW GRANIZADO.VW_GANANCIAS_MENSUALES AS
- SELECT 
-     T.anio,
-     T.mes,
-     S.nro_sucursal,
-     SUM(HF.monto_total - HC.monto_total) AS ganancia
- FROM GRANIZADO.BI_HECHOS_FACTURACION HF
- JOIN GRANIZADO.BI_HECHOS_COMPRAS HC ON HF.id_sucursal = HC.id_sucursal
- JOIN GRANIZADO.BI_TIEMPO T ON T.id_tiempo = HF.id_tiempo
- JOIN GRANIZADO.BI_SUCURSAL S ON S.id_sucursal = HF.id_sucursal
- group by S.nro_sucursal, T.anio, T.mes
+CREATE VIEW GRANIZADO.VW_GANANCIAS_MENSUALES AS
+WITH Ventas AS (
+    SELECT 
+        T.anio,
+        T.mes,
+        S.id_sucursal,
+        SUM(HF.monto_total) AS total_ingresos
+    FROM GRANIZADO.BI_HECHOS_FACTURACION HF
+    JOIN GRANIZADO.BI_TIEMPO T ON HF.id_tiempo = T.id_tiempo
+    JOIN GRANIZADO.BI_SUCURSAL S ON HF.id_sucursal = S.id_sucursal
+    GROUP BY T.anio, T.mes, S.id_sucursal
+),
+Compras AS (
+    SELECT 
+        T.anio,
+        T.mes,
+        S.id_sucursal,
+        SUM(HC.monto_total) AS total_egresos
+    FROM GRANIZADO.BI_HECHOS_COMPRAS HC
+    JOIN GRANIZADO.BI_TIEMPO T ON HC.id_tiempo = T.id_tiempo
+    JOIN GRANIZADO.BI_SUCURSAL S ON HC.id_sucursal = S.id_sucursal
+    GROUP BY T.anio, T.mes, S.id_sucursal
+)
+SELECT 
+    V.anio,
+    V.mes,
+    V.id_sucursal,
+    ISNULL(V.total_ingresos, 0) AS total_ingresos,
+    ISNULL(C.total_egresos, 0) AS total_egresos,
+    ISNULL(V.total_ingresos, 0) - ISNULL(C.total_egresos, 0) AS ganancia
+FROM Ventas V
+LEFT JOIN Compras C 
+    ON V.anio = C.anio AND V.mes = C.mes AND V.id_sucursal = C.id_sucursal;
 GO
 
 --2) Factura promedio mensual.
