@@ -413,40 +413,9 @@ BEGIN
 END
 GO
 
-
-/*CREATE PROCEDURE GRANIZADO.MIGRAR_BI_HECHOS_FACTURACION
-AS
-BEGIN
-    INSERT INTO GRANIZADO.BI_HECHOS_FACTURACION (id_tiempo, id_rango_etario, id_ubicacion_sucursal, id_sucursal, monto_total,cantidad_ventas,tiempo_fabricacion_horas)
-    SELECT 
-        T.id_tiempo,
-        RE.id_rango_etario,
-        U.id_ubicacion,
-        S.id_sucursal,
-        F.Factura_Total,
-		COUNT(distinct F.Factura_Numero)
-    FROM GRANIZADO.FACTURA F
-    JOIN GRANIZADO.CLIENTE C ON C.cli_id = F.cli_id
-    JOIN GRANIZADO.SUCURSAL SU ON SU.Sucursal_NroSucursal = F.Sucursal_NroSucursal
-    JOIN GRANIZADO.DIRECCION DIR ON DIR.direccion_id = SU.direccion_id
-    JOIN GRANIZADO.LOCALIDAD L ON L.localidad_id = DIR.localidad_id
-    JOIN GRANIZADO.PROVINCIA P ON P.provincia_id = L.provincia_id
-    JOIN GRANIZADO.BI_UBICACION U ON U.localidad = L.localidad_nombre AND U.provincia = P.prov_nombre
-    JOIN GRANIZADO.BI_SUCURSAL S ON S.nro_sucursal = SU.Sucursal_NroSucursal
-    JOIN GRANIZADO.BI_TIEMPO T ON T.anio = YEAR(F.Factura_Fecha) AND T.mes = MONTH(F.Factura_Fecha)
-    JOIN GRANIZADO.BI_RANGO_ETARIO RE ON 
-        DATEDIFF(YEAR, C.Cliente_FechaNacimiento, F.Factura_Fecha) BETWEEN RE.rango_menor AND RE.rango_mayor
-    JOIN GRANIZADO.BI_TURNO TU ON 
-        CAST(FORMAT(F.Factura_Fecha, 'HH:mm:ss') AS TIME) BETWEEN TU.hora_inicial AND TU.hora_final
-	group by T.id_tiempo,RE.id_rango_etario,U.id_ubicacion,S.id_sucursal,F.Factura_Total
-END
-GO*/
-
-
 CREATE PROCEDURE GRANIZADO.MIGRAR_BI_HECHOS_FACTURACION
 AS
 BEGIN
-    -- CTE para obtener la fecha mÃ­nima del pedido vinculado a cada factura
     WITH PedidoPorFactura AS (
         SELECT
             f.Factura_Numero,
@@ -455,7 +424,6 @@ BEGIN
         JOIN GRANIZADO.DETALLE_FACTURA df ON df.Factura_Numero = f.Factura_Numero
         JOIN GRANIZADO.DETALLE_PEDIDO dp ON dp.Pedido_Numero = df.Pedido_Numero AND dp.Sillon_Codigo = df.Sillon_Codigo
         JOIN GRANIZADO.PEDIDO p ON p.Pedido_Numero = dp.Pedido_Numero
-        --where p.Pedido_Numero = df.Pedido_Numero
 		group by f.Factura_Numero
     ),
     HorasPorFactura AS (
@@ -548,7 +516,7 @@ EXEC GRANIZADO.MIGRAR_BI_HECHOS_ENVIOS;
 
 GO
 
---1) ganancias. Funcionando
+--1) Ganancias
 
 CREATE VIEW GRANIZADO.VW_GANANCIAS_MENSUALES AS
 WITH Ventas AS (
@@ -583,7 +551,7 @@ LEFT JOIN Compras C
     ON V.anio = C.anio AND V.mes = C.mes AND V.id_sucursal = C.id_sucursal;
 GO
 
---2) Factura promedio mensual.
+--2) Factura promedio mensual
 
 CREATE VIEW GRANIZADO.VW_FACTURA_PROM_CUATRIMESTRAL AS
 SELECT 
@@ -602,7 +570,7 @@ GROUP BY t.anio, t.cuatrimestre, u.provincia;
 GO
 
 
---3)Rendimiento de modelos. Funcionando
+--3) Rendimiento de modelos
 
 CREATE VIEW GRANIZADO.VW_TOP3_MODELOS_VENTAS AS
 SELECT 
@@ -639,7 +607,7 @@ FROM (
 WHERE sub.Posicion <= 3
 go
 
---4)Volumen de pedidos. ME DA 342 COINCIDE
+--4) Volumen de pedidos
 
 CREATE VIEW GRANIZADO.VW_VOLUMEN_PEDIDOS AS
 SELECT 
@@ -654,7 +622,7 @@ JOIN GRANIZADO.BI_SUCURSAL s ON p.id_sucursal = s.id_sucursal
 GROUP BY t.anio, t.mes, p.id_turno, s.nro_sucursal;
 GO
 
---5)Conversión de pedidos.  ME DA 90 COINCIDE CON 90
+--5) Conversión de pedidos
 
 CREATE VIEW GRANIZADO.VW_CONVERSION_PEDIDOS AS
 SELECT 
@@ -670,7 +638,7 @@ JOIN GRANIZADO.BI_SUCURSAL s ON p.id_sucursal = s.id_sucursal
 GROUP BY t.anio, t.cuatrimestre, s.nro_sucursal, e.descripcion_estado;
 GO
 
---6)Tiempo promedio de fabricación: 
+--6)Tiempo promedio de fabricación
 
  CREATE VIEW GRANIZADO.VW_TIEMPO_PROM_FABRICACION AS
  SELECT 
@@ -685,7 +653,7 @@ GO
  GO
 
 
---7)Promedio de Compras ME DA 19 COINCIDE
+--7)Promedio de Compras.
 
 CREATE VIEW GRANIZADO.VW_PROMEDIO_COMPRAS_MENSUAL AS
 SELECT 
@@ -713,7 +681,7 @@ JOIN GRANIZADO.BI_SUCURSAL s ON c.id_sucursal = s.id_sucursal
 GROUP BY t.anio, t.cuatrimestre, s.id_sucursal, m.tipo;
 GO
 
---9)Porcentaje de cumplimiento de envíos por mes CHEQUEAR PORCENTAJES ME DA 19 CUMPLE
+--9)Porcentaje de cumplimiento de envíos por mes.
 
 CREATE VIEW GRANIZADO.VW_CUMPLIMIENTO_ENVIOS AS
 SELECT 
@@ -726,7 +694,7 @@ GROUP BY t.anio, t.mes;
 GO
 
 
---10)Top 3 localidades con mayor costo de envío promedio ME DA 3 COINCIDE
+--10) Top 3 localidades con mayor costo de envío promedio.
 
 CREATE VIEW GRANIZADO.VW_TOP3_COSTO_ENVIO_LOCALIDAD AS
 SELECT TOP 3
