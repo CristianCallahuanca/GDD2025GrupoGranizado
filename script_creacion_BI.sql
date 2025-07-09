@@ -111,6 +111,7 @@ CREATE TABLE GRANIZADO.BI_HECHOS_COMPRAS (
 );
 
 CREATE TABLE GRANIZADO.BI_HECHOS_PEDIDOS (
+    id_pedido INT NOT NULL,
     id_tiempo INT NOT NULL,
     id_turno INT NOT NULL,
     id_sucursal INT NOT NULL,
@@ -369,6 +370,7 @@ CREATE PROCEDURE GRANIZADO.MIGRAR_BI_HECHOS_PEDIDOS
 AS
 BEGIN
     INSERT INTO GRANIZADO.BI_HECHOS_PEDIDOS (
+        id_pedido,
         id_tiempo,
         id_turno,
         id_sucursal,
@@ -376,36 +378,40 @@ BEGIN
         cantidad
     )
     SELECT 
+        P.Pedido_Numero AS id_pedido,
         T.id_tiempo,
         TU.id_turno,
         S.id_sucursal,
         EP.id_estado_pedido,
-        count(distinct(DP.Detalle_Pedido_Cantidad))
+        ISNULL(SUM(DP.Detalle_Pedido_Cantidad), 0) AS cantidad_items
     FROM GRANIZADO.PEDIDO P
+    LEFT JOIN GRANIZADO.DETALLE_PEDIDO DP 
+        ON DP.Pedido_Numero = P.Pedido_Numero 
+        AND DP.Sucursal_NroSucursal = P.Sucursal_NroSucursal
     JOIN GRANIZADO.BI_TIEMPO T 
         ON T.anio = YEAR(P.Pedido_Fecha) 
         AND T.mes = MONTH(P.Pedido_Fecha)
     JOIN GRANIZADO.BI_TURNO TU 
         ON CAST(FORMAT(P.Pedido_Fecha, 'HH:mm:ss') AS TIME) 
-        BETWEEN TU.hora_inicial AND TU.hora_final
+           BETWEEN TU.hora_inicial AND TU.hora_final
     JOIN GRANIZADO.BI_SUCURSAL S 
         ON S.nro_sucursal = P.Sucursal_NroSucursal
-    JOIN GRANIZADO.DETALLE_PEDIDO DP 
-        ON DP.Pedido_Numero = P.Pedido_Numero 
-        AND DP.Sucursal_NroSucursal = P.Sucursal_NroSucursal
     JOIN GRANIZADO.BI_ESTADO_PEDIDO EP 
         ON EP.descripcion_estado = P.Pedido_Estado
     WHERE NOT EXISTS (
-    SELECT 1 FROM GRANIZADO.BI_HECHOS_PEDIDOS HP
-    WHERE HP.id_tiempo = T.id_tiempo
-      AND HP.id_turno = TU.id_turno
-      AND HP.id_sucursal = S.id_sucursal
-      AND HP.id_estado_pedido = EP.id_estado_pedido
-      AND HP.cantidad = DP.Detalle_Pedido_Cantidad
+        SELECT 1 
+        FROM GRANIZADO.BI_HECHOS_PEDIDOS HP
+        WHERE HP.id_estado_pedido = P.Pedido_Numero
     )
-    group by T.id_tiempo, TU.id_turno, S.id_sucursal, EP.id_estado_pedido
+    GROUP BY 
+        P.Pedido_Numero, 
+        T.id_tiempo, 
+        S.id_sucursal, 
+        EP.id_estado_pedido, 
+        TU.id_turno, 
+        P.Pedido_Total;
 END
-go
+GO
 
 
 /*CREATE PROCEDURE GRANIZADO.MIGRAR_BI_HECHOS_FACTURACION
