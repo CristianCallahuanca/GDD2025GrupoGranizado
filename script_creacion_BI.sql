@@ -482,7 +482,7 @@ BEGIN
         s.id_sucursal,
         mo.id_modelo,
         SUM(df.Detalle_Factura_SubTotal),
-        COUNT(DISTINCT f.Factura_Numero),
+        SUM(df.Detalle_Factura_Cantidad),
         AVG(hf.HorasFabricacion)
     FROM GRANIZADO.FACTURA f
     JOIN HorasPorFactura hf ON hf.Factura_Numero = f.Factura_Numero
