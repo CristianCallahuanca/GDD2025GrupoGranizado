@@ -584,7 +584,12 @@ SELECT
     t.anio,
     t.cuatrimestre,
     u.provincia,
-    AVG(f.monto_total) AS factura_promedio
+    SUM(f.cantidad_ventas) AS cantidad_facturas,
+    SUM(f.monto_total) AS total_facturado,
+    CASE 
+        WHEN SUM(f.cantidad_ventas) = 0 THEN 0
+        ELSE SUM(f.monto_total) * 1.0 / SUM(f.cantidad_ventas)
+    END AS factura_promedio
 FROM GRANIZADO.BI_HECHOS_FACTURACION f
 JOIN GRANIZADO.BI_TIEMPO t ON f.id_tiempo = t.id_tiempo
 JOIN GRANIZADO.BI_UBICACION u ON f.id_ubicacion_sucursal = u.id_ubicacion
