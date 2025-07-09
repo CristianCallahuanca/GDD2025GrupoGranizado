@@ -111,7 +111,6 @@ CREATE TABLE GRANIZADO.BI_HECHOS_COMPRAS (
 );
 
 CREATE TABLE GRANIZADO.BI_HECHOS_PEDIDOS (
-    id_pedido INT NOT NULL,
     id_tiempo INT NOT NULL,
     id_turno INT NOT NULL,
     id_sucursal INT NOT NULL,
@@ -370,7 +369,6 @@ CREATE PROCEDURE GRANIZADO.MIGRAR_BI_HECHOS_PEDIDOS
 AS
 BEGIN
     INSERT INTO GRANIZADO.BI_HECHOS_PEDIDOS (
-        id_pedido,
         id_tiempo,
         id_turno,
         id_sucursal,
@@ -378,7 +376,6 @@ BEGIN
         cantidad
     )
     SELECT 
-        P.Pedido_Numero AS id_pedido,
         T.id_tiempo,
         TU.id_turno,
         S.id_sucursal,
@@ -401,10 +398,12 @@ BEGIN
     WHERE NOT EXISTS (
         SELECT 1 
         FROM GRANIZADO.BI_HECHOS_PEDIDOS HP
-        WHERE HP.id_estado_pedido = P.Pedido_Numero
+        WHERE HP.id_tiempo = T.id_tiempo
+          AND HP.id_turno = TU.id_turno
+          AND HP.id_sucursal = S.id_sucursal
+          AND HP.id_estado_pedido = EP.id_estado_pedido
     )
     GROUP BY 
-        P.Pedido_Numero, 
         T.id_tiempo, 
         S.id_sucursal, 
         EP.id_estado_pedido, 
@@ -412,6 +411,7 @@ BEGIN
         P.Pedido_Total;
 END
 GO
+
 
 CREATE PROCEDURE GRANIZADO.MIGRAR_BI_HECHOS_FACTURACION
 AS
