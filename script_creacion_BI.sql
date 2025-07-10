@@ -125,6 +125,7 @@ CREATE TABLE GRANIZADO.BI_HECHOS_FACTURACION (
     id_sucursal INT NOT NULL,
 	id_modelo INT NOT NULL,
     monto_total DECIMAL(12,4),
+	cantidad_facturas INT NOT NULL,
 	cantidad_ventas INT NOT NULL,
 	tiempo_fabricacion_horas INT NOT NULL
 );
@@ -441,6 +442,7 @@ BEGIN
         id_sucursal,
         id_modelo,
         monto_total,
+		cantidad_facturas,
         cantidad_ventas,
         tiempo_fabricacion_horas
     )
@@ -451,6 +453,7 @@ BEGIN
         s.id_sucursal,
         mo.id_modelo,
         SUM(df.Detalle_Factura_SubTotal),
+		COUNT(distinct f.factura_numero),
         SUM(df.Detalle_Factura_Cantidad),
         AVG(hf.HorasFabricacion)
     FROM GRANIZADO.FACTURA f
@@ -589,7 +592,7 @@ SELECT
     SUM(f.cantidad_ventas) AS cantidad_facturas,
     CASE 
         WHEN SUM(f.cantidad_ventas) = 0 THEN 0
-        ELSE SUM(f.monto_total) * 1.0 / SUM(f.cantidad_ventas)
+        ELSE SUM(f.monto_total) * 1.0 / SUM(f.cantidad_facturas)
     END AS factura_promedio
 FROM GRANIZADO.BI_HECHOS_FACTURACION f
 JOIN GRANIZADO.BI_TIEMPO t ON f.id_tiempo = t.id_tiempo
