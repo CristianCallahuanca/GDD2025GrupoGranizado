@@ -132,7 +132,8 @@ CREATE TABLE GRANIZADO.BI_HECHOS_FACTURACION (
 CREATE TABLE GRANIZADO.BI_HECHOS_ENVIOS (
     id_tiempo INT NOT NULL,
     id_ubicacion_cliente INT NOT NULL,
-    cumplido BIT,
+    cantidad_entregas INT,
+	cantidad_cumplidos INT,
     costo_total_envio DECIMAL(12,4)
 );
 
@@ -479,16 +480,40 @@ BEGIN
 END
 GO
 
+-- select * from GRANIZADO.BI_HECHOS_ENVIOS
+
+-- CREATE PROCEDURE GRANIZADO.MIGRAR_BI_HECHOS_ENVIOS
+-- AS
+-- BEGIN
+--     INSERT INTO GRANIZADO.BI_HECHOS_ENVIOS (id_tiempo, id_ubicacion_cliente, cumplido, costo_total_envio)
+--     SELECT 
+--         T.id_tiempo,
+--         U.id_ubicacion,
+--         CASE WHEN  E.Envio_Fecha <= E.Envio_Fecha_Programada THEN 1 ELSE 0 END,
+--         E.Envio_Total
+--     FROM GRANIZADO.ENVIO E
+--     JOIN GRANIZADO.FACTURA F ON F.Factura_Numero = E.Factura_Numero
+--     JOIN GRANIZADO.CLIENTE C ON C.cli_id = F.cli_id
+--     JOIN GRANIZADO.DIRECCION DIR ON DIR.direccion_id = C.direccion_id
+--     JOIN GRANIZADO.LOCALIDAD L ON L.localidad_id = DIR.localidad_id
+--     JOIN GRANIZADO.PROVINCIA P ON P.provincia_id = L.provincia_id
+--     JOIN GRANIZADO.BI_UBICACION U ON U.localidad = L.localidad_nombre AND U.provincia = P.prov_nombre
+--     JOIN GRANIZADO.BI_TIEMPO T ON T.anio = YEAR(E.Envio_Fecha_Programada) AND T.mes = MONTH(E.Envio_Fecha_Programada)
+-- END
+-- GO
+
+-- select * from GRANIZADO.BI_HECHOS_ENVIOS
 
 CREATE PROCEDURE GRANIZADO.MIGRAR_BI_HECHOS_ENVIOS
 AS
 BEGIN
-    INSERT INTO GRANIZADO.BI_HECHOS_ENVIOS (id_tiempo, id_ubicacion_cliente, cumplido, costo_total_envio)
+INSERT INTO GRANIZADO.BI_HECHOS_ENVIOS (id_tiempo, id_ubicacion_cliente, cantidad_entregas, cantidad_cumplidos, costo_total_envio)
     SELECT 
         T.id_tiempo,
-        U.id_ubicacion,
-        CASE WHEN  E.Envio_Fecha <= E.Envio_Fecha_Programada THEN 1 ELSE 0 END,
-        E.Envio_Total
+U.id_ubicacion,
+    COUNT(*),
+        SUM(CASE WHEN  E.Envio_Fecha <= E.Envio_Fecha_Programada THEN 1 ELSE 0 END),
+        SUM(E.Envio_Total)
     FROM GRANIZADO.ENVIO E
     JOIN GRANIZADO.FACTURA F ON F.Factura_Numero = E.Factura_Numero
     JOIN GRANIZADO.CLIENTE C ON C.cli_id = F.cli_id
@@ -497,6 +522,9 @@ BEGIN
     JOIN GRANIZADO.PROVINCIA P ON P.provincia_id = L.provincia_id
     JOIN GRANIZADO.BI_UBICACION U ON U.localidad = L.localidad_nombre AND U.provincia = P.prov_nombre
     JOIN GRANIZADO.BI_TIEMPO T ON T.anio = YEAR(E.Envio_Fecha_Programada) AND T.mes = MONTH(E.Envio_Fecha_Programada)
+    JOIN GRANIZADO.BI_RANGO_ETARIO RE ON 
+        DATEDIFF(YEAR, C.Cliente_FechaNacimiento, E.Envio_Fecha_Programada) BETWEEN RE.rango_menor AND RE.rango_mayor
+    GROUP BY  T.id_tiempo, U.id_ubicacion
 END
 GO
 
@@ -682,26 +710,24 @@ GROUP BY t.anio, t.cuatrimestre, s.id_sucursal, m.tipo;
 GO
 
 --9)Porcentaje de cumplimiento de envíos por mes.
-
 CREATE VIEW GRANIZADO.VW_CUMPLIMIENTO_ENVIOS AS
 SELECT 
-    t.anio,
-    t.mes,
-    COUNT(CASE WHEN e.cumplido = 1 THEN 1 END) * 100.0 / COUNT(*) AS porcentaje_cumplimiento
+    t.anio AS 'Año',
+    t.mes AS Mes,
+    CAST(1.0 * SUM(e.cantidad_cumplidos) / NULLIF(SUM(e.cantidad_entregas), 0) * 100 AS DECIMAL(5,2)) AS porcentaje_cumplimiento_envios
 FROM GRANIZADO.BI_HECHOS_ENVIOS e
 JOIN GRANIZADO.BI_TIEMPO t ON e.id_tiempo = t.id_tiempo
 GROUP BY t.anio, t.mes;
 GO
 
-
 --10) Top 3 localidades con mayor costo de envío promedio.
-
 CREATE VIEW GRANIZADO.VW_TOP3_COSTO_ENVIO_LOCALIDAD AS
 SELECT TOP 3
-    u.localidad,
-    u.provincia,
-    AVG(e.costo_total_envio) AS costo_promedio
-    FROM GRANIZADO.BI_HECHOS_ENVIOS e
-    JOIN GRANIZADO.BI_UBICACION u ON e.id_ubicacion_cliente = u.id_ubicacion
-    GROUP BY u.localidad, u.provincia
-    ORDER BY AVG(e.costo_total_envio) DESC;
+    u.provincia AS Provincia,
+    u.localidad AS Localidad,
+    CAST(SUM(e.costo_total_envio) * 1.0 / NULLIF(SUM(e.cantidad_entregas), 0) AS DECIMAL(10,2)) AS Promedio_costo_de_envio
+FROM GRANIZADO.BI_HECHOS_ENVIOS e
+JOIN GRANIZADO.BI_UBICACION u ON e.id_ubicacion_cliente = u.id_ubicacion
+GROUP BY u.provincia, u.localidad
+ORDER BY Promedio_costo_de_envio DESC;
+GO
