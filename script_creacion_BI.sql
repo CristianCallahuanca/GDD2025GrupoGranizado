@@ -413,7 +413,6 @@ BEGIN
 END
 GO
 
-
 CREATE PROCEDURE GRANIZADO.MIGRAR_BI_HECHOS_FACTURACION
 AS
 BEGIN
@@ -621,7 +620,7 @@ SELECT
     t.mes,
     s.nro_sucursal,
     p.id_turno,
-    COUNT(*) AS cantidad_pedidos
+    SUM(p.cantidad) AS cantidad_pedidos
 FROM GRANIZADO.BI_HECHOS_PEDIDOS p
 JOIN GRANIZADO.BI_TIEMPO t ON p.id_tiempo = t.id_tiempo
 JOIN GRANIZADO.BI_SUCURSAL s ON p.id_sucursal = s.id_sucursal
@@ -629,14 +628,15 @@ GROUP BY t.anio, t.mes, p.id_turno, s.nro_sucursal;
 GO
 
 --5) Conversión de pedidos
-
 CREATE VIEW GRANIZADO.VW_CONVERSION_PEDIDOS AS
 SELECT 
     t.cuatrimestre,
     t.anio,
     s.nro_sucursal,
     e.descripcion_estado,
-    COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (PARTITION BY t.anio, t.cuatrimestre, s.nro_sucursal) AS porcentaje
+    SUM(p.cantidad) * 100.0 / SUM(SUM(p.cantidad)) OVER (
+        PARTITION BY t.anio, t.cuatrimestre, s.nro_sucursal
+    ) AS porcentaje
 FROM GRANIZADO.BI_HECHOS_PEDIDOS p
 JOIN GRANIZADO.BI_TIEMPO t ON p.id_tiempo = t.id_tiempo
 JOIN GRANIZADO.BI_ESTADO_PEDIDO e ON p.id_estado_pedido = e.id_estado_pedido
