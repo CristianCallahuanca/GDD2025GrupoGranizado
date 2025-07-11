@@ -409,8 +409,7 @@ BEGIN
         T.id_tiempo, 
         S.id_sucursal, 
         EP.id_estado_pedido, 
-        TU.id_turno, 
-        P.Pedido_Total;
+        TU.id_turno
 END
 GO
 
@@ -482,30 +481,6 @@ BEGIN
         mo.id_modelo
 END
 GO
-
--- select * from GRANIZADO.BI_HECHOS_ENVIOS
-
--- CREATE PROCEDURE GRANIZADO.MIGRAR_BI_HECHOS_ENVIOS
--- AS
--- BEGIN
---     INSERT INTO GRANIZADO.BI_HECHOS_ENVIOS (id_tiempo, id_ubicacion_cliente, cumplido, costo_total_envio)
---     SELECT 
---         T.id_tiempo,
---         U.id_ubicacion,
---         CASE WHEN  E.Envio_Fecha <= E.Envio_Fecha_Programada THEN 1 ELSE 0 END,
---         E.Envio_Total
---     FROM GRANIZADO.ENVIO E
---     JOIN GRANIZADO.FACTURA F ON F.Factura_Numero = E.Factura_Numero
---     JOIN GRANIZADO.CLIENTE C ON C.cli_id = F.cli_id
---     JOIN GRANIZADO.DIRECCION DIR ON DIR.direccion_id = C.direccion_id
---     JOIN GRANIZADO.LOCALIDAD L ON L.localidad_id = DIR.localidad_id
---     JOIN GRANIZADO.PROVINCIA P ON P.provincia_id = L.provincia_id
---     JOIN GRANIZADO.BI_UBICACION U ON U.localidad = L.localidad_nombre AND U.provincia = P.prov_nombre
---     JOIN GRANIZADO.BI_TIEMPO T ON T.anio = YEAR(E.Envio_Fecha_Programada) AND T.mes = MONTH(E.Envio_Fecha_Programada)
--- END
--- GO
-
--- select * from GRANIZADO.BI_HECHOS_ENVIOS
 
 CREATE PROCEDURE GRANIZADO.MIGRAR_BI_HECHOS_ENVIOS
 AS
